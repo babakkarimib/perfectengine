@@ -211,7 +211,7 @@ impl Renderer<'_> for GpuRenderer<'_> {
                     resolve_target: None,
                     ops: wgpu::Operations {
                         load: wgpu::LoadOp::Load,
-                        store: wgpu::StoreOp::default(),
+                        store: wgpu::StoreOp::Store,
                     },
                 })],
                 depth_stencil_attachment: None,
