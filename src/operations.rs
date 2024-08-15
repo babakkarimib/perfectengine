@@ -44,11 +44,11 @@ impl Operations {
         x: f32,
         y: f32,
         z: f32,
-    ) -> (f32, f32) {
+    ) -> (u32, u32) {
         let factor = scale / (distance + z);
         (
-            x * factor + canvas_width / 2.0,
-            -y * factor + canvas_height / 2.0,
+            (x * factor + canvas_width / 2.0) as u32,
+            (-y * factor + canvas_height / 2.0) as u32,
         )
     }
     
