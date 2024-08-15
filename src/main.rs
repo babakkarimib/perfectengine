@@ -9,7 +9,10 @@ mod view_state;
 mod light;
 mod renderer;
 
-use std::{io::{self, Write}, time::{Duration, Instant}};
+use async_std::print;
+use async_std::task;
+use async_std::io::{self, WriteExt};
+use std::time::{Duration, Instant};
 
 use cpu_renderer::CpuRenderer;
 use event_handler::EventHandler;
@@ -24,7 +27,7 @@ const WIDTH: u32 = 800;
 const HEIGHT: u32 = 600;
 const GPU_ENABLED: bool = false;
 
-#[pollster::main]
+#[async_std::main]
 async fn main() {
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
@@ -77,10 +80,10 @@ async fn main() {
         renderer.render(&view_state, &light);
 
         let process_duration = process_start.elapsed();
-        print!("\rFRAME DURATION: {:2}ms", process_duration.as_millis());
-        io::stdout().flush().unwrap();
+        print!("\rFRAME DURATION: {:2}ms", process_duration.as_millis()).await;
+        io::stdout().flush();
         if process_duration < frame_duration {
-            std::thread::sleep(frame_duration - process_duration);
+            task::sleep(frame_duration - process_duration).await;
         }
     }
 }

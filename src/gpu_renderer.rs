@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use async_std::task;
 use sdl2::video::Window;
 use wgpu::{util::DeviceExt, SurfaceTargetUnsafe};
 use wgpu::SurfaceConfiguration;
@@ -223,7 +224,7 @@ impl Renderer<'_> for GpuRenderer<'_> {
         self.queue.submit(Some(encoder.finish()));
         frame.present();
         
-        pollster::block_on(async { self.device.poll(wgpu::Maintain::Wait) });
+        task::block_on(async { self.device.poll(wgpu::Maintain::Wait) });
     }
 
     fn load_pixels(&mut self, new_pixels: Vec<Pixel>) {
