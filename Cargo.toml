@@ -1,0 +1,13 @@
+[package]
+name = "perfectengine"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+[dependencies]
+bytemuck = "1.16.3"
+pollster = { version = "0.3.0", features = ["macro"] }
+sdl2 = { version = "0.37.0", features = ["raw-window-handle"] }
+wgpu = "22.1.0"
+
+
