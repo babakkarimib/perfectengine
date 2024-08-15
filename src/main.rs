@@ -11,7 +11,6 @@ mod renderer;
 
 use async_std::print;
 use async_std::task;
-use async_std::io::{self, WriteExt};
 use std::time::{Duration, Instant};
 
 use cpu_renderer::CpuRenderer;
@@ -81,7 +80,6 @@ async fn main() {
 
         let process_duration = process_start.elapsed();
         print!("\rFRAME DURATION: {:2}ms", process_duration.as_millis()).await;
-        io::stdout().flush();
         if process_duration < frame_duration {
             task::sleep(frame_duration - process_duration).await;
         }
