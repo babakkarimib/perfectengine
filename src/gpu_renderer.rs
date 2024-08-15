@@ -18,9 +18,9 @@ pub struct GpuRenderer<'a> {
 }
 
 impl GpuRenderer<'_> {
-    pub async fn new(window: Window) -> GpuRenderer<'static> {
+    pub async fn new(window: &Window) -> GpuRenderer<'static> {
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
-        let surface = unsafe { instance.create_surface_unsafe(SurfaceTargetUnsafe::from_window(&window).unwrap()).unwrap() };
+        let surface = unsafe { instance.create_surface_unsafe(SurfaceTargetUnsafe::from_window(window).unwrap()).unwrap() };
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
                 power_preference: wgpu::PowerPreference::HighPerformance,
@@ -32,11 +32,7 @@ impl GpuRenderer<'_> {
 
         let (device, queue) = request_device(&adapter).await;
 
-        let device = Arc::new(device);
-        let queue = Arc::new(queue);
-
-        let (canvas_width, canvas_height) = window.size();
-
+        let (canvas_width, canvas_height) = window.drawable_size();
         let surface_config = SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::STORAGE_BINDING | wgpu::TextureUsages::TEXTURE_BINDING,
             format: wgpu::TextureFormat::Bgra8Unorm,
@@ -48,6 +44,9 @@ impl GpuRenderer<'_> {
             view_formats: vec![],
         };
         surface.configure(&device, &surface_config);
+
+        let device = Arc::new(device);
+        let queue = Arc::new(queue);
 
         let shader_source = include_str!("shader.wgsl");
         let shader_module = create_shader_module(&device, shader_source);
@@ -117,13 +116,6 @@ impl Renderer<'_> for GpuRenderer<'_> {
             distance,
         } = *view_state;
 
-        let Light {
-            x: light_x,
-            y: light_y,
-            z: light_z,
-            intensity,
-        } = *light;
-
         let uniforms = Uniforms {
             sx: angle_x.sin(),
             sy: angle_y.sin(),
@@ -133,10 +125,10 @@ impl Renderer<'_> for GpuRenderer<'_> {
             distance,
             canvas_width: self.canvas_width as f32,
             canvas_height: self.canvas_height as f32,
-            light_x,
-            light_y,
-            light_z,
-            intensity
+            light_x: light.x,
+            light_y: light.y,
+            light_z: light.z,
+            intensity: light.intensity,
         };
 
         let uniform_buffer = create_uniform_buffer(&self.device, uniforms);

@@ -9,7 +9,7 @@ mod view_state;
 mod light;
 mod renderer;
 
-use std::time::{Duration, Instant};
+use std::{io::{self, Write}, time::{Duration, Instant}};
 
 use cpu_renderer::CpuRenderer;
 use event_handler::EventHandler;
@@ -37,15 +37,14 @@ async fn main() {
 
     let texture_creator;
     let mut renderer: Box<dyn Renderer<'_>> = if GPU_ENABLED {
-        Box::new(GpuRenderer::new(window).await)
+        Box::new(GpuRenderer::new(&window).await)
     } else {
         let canvas = window.into_canvas().build().unwrap();
         texture_creator = canvas.texture_creator();
         let texture = texture_creator
             .create_texture_streaming(PixelFormatEnum::RGBA8888, WIDTH, HEIGHT)
             .unwrap();
-    
-            Box::new(CpuRenderer::new(canvas, texture))
+        Box::new(CpuRenderer::new(canvas, texture))
     };
 
     let pixels = TestHelper::create_square_pixels(2000000, 6.0);
@@ -67,6 +66,7 @@ async fn main() {
         intensity: 3.5,
     };
 
+    println!("\nGPU ENABLED: {}", GPU_ENABLED);
     let frame_duration = Duration::from_millis(16);
     'running: loop {
         let process_start = Instant::now();
@@ -77,7 +77,8 @@ async fn main() {
         renderer.render(&view_state, &light);
 
         let process_duration = process_start.elapsed();
-        // println!("{}", process_duration.as_millis());
+        print!("\rFRAME DURATION: {:2}ms", process_duration.as_millis());
+        io::stdout().flush().unwrap();
         if process_duration < frame_duration {
             std::thread::sleep(frame_duration - process_duration);
         }
