@@ -49,7 +49,7 @@ async fn main() {
         Box::new(CpuRenderer::new(canvas, texture))
     };
 
-    let pixels = TestHelper::create_square_pixels(2000000, 6.0);
+    let pixels = TestHelper::generate_cube_pixels(2000000, 6.0);
     renderer.load_pixels(pixels);
 
     let event_pump = sdl_context.event_pump().unwrap();

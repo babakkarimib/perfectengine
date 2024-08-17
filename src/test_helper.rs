@@ -3,7 +3,7 @@ use crate::pixel::Pixel;
 pub struct TestHelper {}
 
 impl TestHelper {
-    pub fn create_square_pixels(iters: usize, size: f32) -> Vec<Pixel> {
+    pub fn generate_cube_pixels(iters: usize, size: f32) -> Vec<Pixel> {
         let colors = [
             [255, 0, 0, 255],
             [0, 255, 0, 255],
