@@ -47,7 +47,7 @@ async fn main() {
     let mut renderer: Box<dyn Renderer<'_>> = if GPU_ENABLED {
         Box::new(GpuRenderer::new(&window).await)
     } else {
-        let canvas = window.into_canvas().build().unwrap();
+        let canvas = window.into_canvas().present_vsync().build().unwrap();
         texture_creator = canvas.texture_creator();
         Box::new(CpuRenderer::new(canvas, &texture_creator))
     };
@@ -71,7 +71,7 @@ async fn main() {
         intensity: 3.5,
     };
 
-    println!("\nGPU ENABLED: {}\nFRAME RATE:{:4}fps", GPU_ENABLED, FPS);
+    println!("\nGPU ENABLED: {}\t\tFPS LIMIT:{:4}", GPU_ENABLED, FPS);
     'running: loop {
         let process_start = Instant::now();
 
@@ -83,7 +83,7 @@ async fn main() {
         }
 
         let process_duration = process_start.elapsed();
-        print!("\rFRAME DURATION: {:2}ms ", process_duration.as_millis()).await;
+        print!("\rFRAME DURATION: {:4}ms\t\tFRAME RATE: {}", process_duration.as_millis(), 1000 / process_duration.as_millis()).await;
         if process_duration < FRAME_DELAY {
             task::sleep(FRAME_DELAY - process_duration).await;
         }
