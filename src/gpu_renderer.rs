@@ -10,6 +10,7 @@ pub struct GpuRenderer<'a> {
     device: wgpu::Device,
     queue: wgpu::Queue,
     surface: wgpu::Surface<'a>,
+    surface_config: SurfaceConfiguration,
     compute_pipeline: wgpu::ComputePipeline,
     render_pipeline: wgpu::RenderPipeline,
     pixels: Vec<Pixel>,
@@ -93,6 +94,7 @@ impl GpuRenderer<'_> {
             device,
             queue,
             surface,
+            surface_config,
             compute_pipeline,
             render_pipeline,
             pixels: Vec::new(),
@@ -225,6 +227,14 @@ impl Renderer<'_> for GpuRenderer<'_> {
 
     fn load_pixels(&mut self, new_pixels: Vec<Pixel>) {
         self.pixels.extend(new_pixels);
+    }
+    
+    fn resize(&mut self, width: u32, height: u32) {
+        self.canvas_width = width as f32;
+        self.canvas_height = height as f32;
+        self.surface_config.width = width as u32;
+        self.surface_config.height = height as u32;
+        self.surface.configure(&self.device, &self.surface_config);
     }
 }
 

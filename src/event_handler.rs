@@ -1,6 +1,6 @@
-use sdl2::{event::Event, keyboard::Keycode, mouse::MouseButton, EventPump};
+use sdl2::{event::{Event, WindowEvent}, keyboard::Keycode, mouse::MouseButton, EventPump};
 
-use crate::{light::Light, view_state::ViewState};
+use crate::{event_callback::EventCallback, light::Light, view_state::ViewState};
 
 pub struct EventHandler {
     event_pump: EventPump,
@@ -21,14 +21,18 @@ impl EventHandler {
         }
     }
 
-    pub fn handle_events(&mut self, view_state: &mut ViewState, light: &mut Light) -> bool {
+    pub fn handle_events(&mut self, view_state: &mut ViewState, light: &mut Light) -> EventCallback {
         for event in self.event_pump.poll_iter() {
             match event {
+                Event::Window {
+                    win_event: WindowEvent::SizeChanged(width, height),
+                    ..
+                } => return EventCallback::RESIZE(width as u32, height as u32),
                 Event::Quit { .. }
                 | Event::KeyDown {
                     keycode: Some(Keycode::Escape),
                     ..
-                } => return false,
+                } => return EventCallback::QUIT,
                 Event::MouseButtonDown { mouse_btn, x, y, .. } => match mouse_btn {
                     MouseButton::Left => {
                         self.is_dragging = true;
@@ -78,6 +82,6 @@ impl EventHandler {
                 _ => {}
             }
         }
-        true
+        EventCallback::NEXT
     }
 }

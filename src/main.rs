@@ -8,9 +8,11 @@ mod uniforms;
 mod view_state;
 mod light;
 mod renderer;
+mod event_callback;
 
 use async_std::print;
 use async_std::task;
+use event_callback::EventCallback;
 use std::time::{Duration, Instant};
 
 use cpu_renderer::CpuRenderer;
@@ -18,7 +20,6 @@ use event_handler::EventHandler;
 use gpu_renderer::GpuRenderer;
 use light::Light;
 use renderer::Renderer;
-use sdl2::pixels::PixelFormatEnum;
 use view_state::ViewState;
 use crate::test_helper::TestHelper;
 
@@ -33,6 +34,7 @@ async fn main() {
 
     let window = video_subsystem.window("Perfect Engine", WIDTH, HEIGHT)
         .position_centered()
+        .resizable()
         .vulkan()
         .build()
         .unwrap();
@@ -43,10 +45,7 @@ async fn main() {
     } else {
         let canvas = window.into_canvas().build().unwrap();
         texture_creator = canvas.texture_creator();
-        let texture = texture_creator
-            .create_texture_streaming(PixelFormatEnum::RGBA8888, WIDTH, HEIGHT)
-            .unwrap();
-        Box::new(CpuRenderer::new(canvas, texture))
+        Box::new(CpuRenderer::new(canvas, &texture_creator))
     };
 
     let pixels = TestHelper::generate_cube_pixels(2000000, 6.0);
@@ -73,10 +72,12 @@ async fn main() {
     'running: loop {
         let process_start = Instant::now();
 
-        if !event_handler.handle_events(&mut view_state, &mut light) {
-            break 'running;
+        let event_callback = event_handler.handle_events(&mut view_state, &mut light);
+        match event_callback {
+            EventCallback::QUIT => break 'running,
+            EventCallback::RESIZE(width, height) => renderer.resize(width, height),
+            EventCallback::NEXT => renderer.render(&view_state, &light)
         }
-        renderer.render(&view_state, &light);
 
         let process_duration = process_start.elapsed();
         print!("\rFRAME DURATION: {:2}ms ", process_duration.as_millis()).await;

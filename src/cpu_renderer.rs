@@ -1,7 +1,10 @@
+use sdl2::{pixels::PixelFormatEnum, render::TextureCreator, video::WindowContext};
+
 use crate::{light::Light, operations::Operations, pixel::Pixel, renderer::Renderer, view_state::ViewState};
 
 pub struct CpuRenderer<'a> {
     canvas: sdl2::render::Canvas<sdl2::video::Window>,
+    texture_creator: &'a TextureCreator<WindowContext>,
     texture: sdl2::render::Texture<'a>,
     pixels: Vec<Pixel>,
     canvas_width: u32,
@@ -9,14 +12,17 @@ pub struct CpuRenderer<'a> {
 }
 
 impl CpuRenderer<'_> {
-    pub fn new(
+    pub fn new<'a>(
         canvas: sdl2::render::Canvas<sdl2::video::Window>,
-        texture: sdl2::render::Texture,
-    ) -> CpuRenderer {
+        texture_creator: &'a TextureCreator<WindowContext>,
+    ) -> CpuRenderer<'a> {
         let (canvas_width, canvas_height) = canvas.output_size().unwrap();
-
+        let texture = texture_creator
+        .create_texture_streaming(PixelFormatEnum::RGBA8888, canvas_width, canvas_height)
+        .unwrap();
         CpuRenderer {
             canvas,
+            texture_creator,
             texture,
             pixels: Vec::new(),
             canvas_width,
@@ -57,5 +63,13 @@ impl Renderer<'_> for CpuRenderer<'_> {
 
     fn load_pixels(&mut self, new_pixels: Vec<Pixel>) {
         self.pixels.extend(new_pixels);
+    }
+    
+    fn resize(&mut self, width: u32, height: u32) {
+        self.canvas_width = width;
+        self.canvas_height = height;
+        self.texture = self.texture_creator
+        .create_texture_streaming(PixelFormatEnum::RGBA8888, width, height)
+        .unwrap();
     }
 }
