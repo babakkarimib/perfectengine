@@ -25,6 +25,10 @@ use crate::test_helper::TestHelper;
 
 const WIDTH: u32 = 800;
 const HEIGHT: u32 = 600;
+
+const FPS: u32 = 60;
+const FRAME_DELAY: Duration = Duration::from_millis(1000 / FPS as u64);
+
 const GPU_ENABLED: bool = false;
 
 #[async_std::main]
@@ -67,8 +71,7 @@ async fn main() {
         intensity: 3.5,
     };
 
-    println!("\nGPU ENABLED: {}", GPU_ENABLED);
-    let frame_duration = Duration::from_millis(16);
+    println!("\nGPU ENABLED: {}\nFRAME RATE:{:4}fps", GPU_ENABLED, FPS);
     'running: loop {
         let process_start = Instant::now();
 
@@ -81,8 +84,8 @@ async fn main() {
 
         let process_duration = process_start.elapsed();
         print!("\rFRAME DURATION: {:2}ms ", process_duration.as_millis()).await;
-        if process_duration < frame_duration {
-            task::sleep(frame_duration - process_duration).await;
+        if process_duration < FRAME_DELAY {
+            task::sleep(FRAME_DELAY - process_duration).await;
         }
     }
 }
