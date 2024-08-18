@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use async_std::task;
 use sdl2::video::Window;
 use wgpu::{util::DeviceExt, SurfaceTargetUnsafe};
@@ -8,8 +7,8 @@ use crate::renderer::Renderer;
 use crate::{light::Light, pixel::Pixel, uniforms::Uniforms, view_state::ViewState};
 
 pub struct GpuRenderer<'a> {
-    device: Arc<wgpu::Device>,
-    queue: Arc<wgpu::Queue>,
+    device: wgpu::Device,
+    queue: wgpu::Queue,
     surface: wgpu::Surface<'a>,
     compute_pipeline: wgpu::ComputePipeline,
     render_pipeline: wgpu::RenderPipeline,
@@ -45,9 +44,6 @@ impl GpuRenderer<'_> {
             view_formats: vec![],
         };
         surface.configure(&device, &surface_config);
-
-        let device = Arc::new(device);
-        let queue = Arc::new(queue);
 
         let shader_source = include_str!("shader.wgsl");
         let shader_module = create_shader_module(&device, shader_source);

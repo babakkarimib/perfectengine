@@ -79,7 +79,7 @@ async fn main() {
         renderer.render(&view_state, &light);
 
         let process_duration = process_start.elapsed();
-        print!("\rFRAME DURATION: {:2}ms", process_duration.as_millis()).await;
+        print!("\rFRAME DURATION: {:2}ms ", process_duration.as_millis()).await;
         if process_duration < frame_duration {
             task::sleep(frame_duration - process_duration).await;
         }
