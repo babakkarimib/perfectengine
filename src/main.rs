@@ -29,7 +29,7 @@ const HEIGHT: u32 = 600;
 const FPS: u32 = 60;
 const FRAME_DELAY: Duration = Duration::from_millis(1000 / FPS as u64);
 
-const GPU_ENABLED: bool = false;
+const GPU_ENABLED: bool = true;
 
 #[async_std::main]
 async fn main() {
@@ -71,7 +71,7 @@ async fn main() {
         intensity: 3.5,
     };
 
-    println!("\nGPU ENABLED:\t {}\t\tFPS LIMIT: {:5}", GPU_ENABLED, FPS);
+    println!("\nGPU ENABLED:\t  {}\t\tFPS LIMIT: {:5}", GPU_ENABLED, FPS);
     'running: loop {
         let process_start = Instant::now();
 

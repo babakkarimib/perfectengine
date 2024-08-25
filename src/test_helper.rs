@@ -5,12 +5,12 @@ pub struct TestHelper {}
 impl TestHelper {
     pub fn generate_cube_pixels(iters: usize, size: f32) -> Vec<Pixel> {
         let colors = [
-            [255, 0, 0, 255],
-            [0, 255, 0, 255],
-            [0, 0, 255, 255],
-            [255, 255, 0, 255],
-            [255, 0, 255, 255],
-            [0, 255, 255, 255],
+            [1.0, 0.0, 0.0, 1.0],
+            [0.0, 1.0, 0.0, 1.0],
+            [0.0, 0.0, 1.0, 1.0],
+            [1.0, 1.0, 0.0, 1.0],
+            [1.0, 0.0, 1.0, 1.0],
+            [0.0, 1.0, 1.0, 1.0],
         ];
     
         let step = (iters as f32).cbrt().floor() as usize;

@@ -21,17 +21,17 @@ impl Operations {
         light_y: f32,
         light_z: f32,
         intensity: f32,
-        r: u8,
-        g: u8,
-        b: u8,
-    ) -> (u8, u8, u8) {
+        r: f32,
+        g: f32,
+        b: f32,
+    ) -> (f32, f32, f32) {
         let light_vector = (light_x - x, light_y - y, light_z - z);
     
         let distance = (light_vector.0.powi(2) + light_vector.1.powi(2) + light_vector.2.powi(2)).sqrt();
     
-        let adjusted_r = (r as f32 * intensity / distance).min(255.0) as u8;
-        let adjusted_g = (g as f32 * intensity / distance).min(255.0) as u8;
-        let adjusted_b = (b as f32 * intensity / distance).min(255.0) as u8;
+        let adjusted_r = (r as f32 * intensity / distance).clamp(0.0, 1.0);
+        let adjusted_g = (g as f32 * intensity / distance).clamp(0.0, 1.0);
+        let adjusted_b = (b as f32 * intensity / distance).clamp(0.0, 1.0);
     
         (adjusted_r, adjusted_g, adjusted_b)
     }
@@ -59,10 +59,11 @@ impl Operations {
         canvas_height: u32,
         x: u32,
         y: u32,
-        color: [u8; 4],
+        color: [f32; 4],
         block_size: u32,
         z: f32,
     ) {
+        let color = [(color[0] * 255.0) as u8, (color[1] * 255.0) as u8, (color[2] * 255.0) as u8, (color[3] * 255.0) as u8];
         for dx in 0..block_size {
             for dy in 0..block_size {
                 let px = x + dx;
