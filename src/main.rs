@@ -52,7 +52,7 @@ async fn main() {
         Box::new(CpuRenderer::new(canvas, &texture_creator))
     };
 
-    let pixels = TestHelper::generate_cube_pixels(2000000, 6.0);
+    let (pixels, pixel_count) = TestHelper::generate_cube_pixels(2000000, 6.0);
     renderer.load_pixels(pixels);
 
     let event_pump = sdl_context.event_pump().unwrap();
@@ -71,15 +71,15 @@ async fn main() {
         intensity: 3.5,
     };
 
-    println!("\nGPU ENABLED:\t  {}\t\tFPS LIMIT: {:5}", GPU_ENABLED, FPS);
+    println!("\nGPU ENABLED:\t  {}\t\tFPS LIMIT: {:5}\tPIXEL COUNT: {:10}", GPU_ENABLED, FPS, pixel_count);
     'running: loop {
         let process_start = Instant::now();
 
         let event_callback = event_handler.handle_events(&mut view_state, &mut light);
         match event_callback {
-            EventCallback::QUIT => break 'running,
-            EventCallback::RESIZE(width, height) => renderer.resize(width, height),
-            EventCallback::NEXT => renderer.render(&view_state, &light)
+            EventCallback::Quit => break 'running,
+            EventCallback::Resized(width, height) => renderer.resize(width, height),
+            EventCallback::Next => renderer.render(&view_state, &light)
         }
 
         let process_duration = process_start.elapsed();

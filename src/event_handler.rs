@@ -27,12 +27,12 @@ impl EventHandler {
                 Event::Window {
                     win_event: WindowEvent::SizeChanged(width, height),
                     ..
-                } => return EventCallback::RESIZE(width as u32, height as u32),
+                } => return EventCallback::Resized(width as u32, height as u32),
                 Event::Quit { .. }
                 | Event::KeyDown {
                     keycode: Some(Keycode::Escape),
                     ..
-                } => return EventCallback::QUIT,
+                } => return EventCallback::Quit,
                 Event::MouseButtonDown { mouse_btn, x, y, .. } => match mouse_btn {
                     MouseButton::Left => {
                         self.is_dragging = true;
@@ -82,6 +82,6 @@ impl EventHandler {
                 _ => {}
             }
         }
-        EventCallback::NEXT
+        EventCallback::Next
     }
 }

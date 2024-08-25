@@ -72,22 +72,21 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     let rotated = rotate(vec3<f32>(pixel.x, pixel.y, pixel.z));
     let lit_color = apply_lighting(rotated.x, rotated.y, rotated.z, pixel.r, pixel.g, pixel.b);
     let projected = project(rotated);
+    let color = vec4<f32>(lit_color, pixel.a);
 
     let px = i32(projected.x);
     let py = i32(projected.y);
     let block_size = i32(ceil(uniforms.scale / (uniforms.distance + rotated.z) * pixel.size_factor));
-
     for (var dx: i32 = 0; dx < block_size; dx++) {
         for (var dy: i32 = 0; dy < block_size; dy++) {
             let px_offset = px + dx;
             let py_offset = py + dy;
             let depth_index = py_offset * i32(uniforms.canvas_width) + px_offset;
-
             while (true) {
                 if (atomicCompareExchangeWeak(&lock[depth_index], 0u, 1u).exchanged) {
                     if (rotated.z < depth_buffer[depth_index]) {
                         depth_buffer[depth_index] = rotated.z;
-                        textureStore(img, vec2<i32>(px_offset, py_offset), vec4<f32>(lit_color, pixel.a));
+                        textureStore(img, vec2<i32>(px_offset, py_offset), color);
                     }
                     atomicStore(&lock[depth_index], 0u);
                     break;

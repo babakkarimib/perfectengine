@@ -3,7 +3,7 @@ use crate::pixel::Pixel;
 pub struct TestHelper {}
 
 impl TestHelper {
-    pub fn generate_cube_pixels(iters: usize, size: f32) -> Vec<Pixel> {
+    pub fn generate_cube_pixels(iters: usize, size: f32) -> (Vec<Pixel>, usize) {
         let colors = [
             [1.0, 0.0, 0.0, 1.0],
             [0.0, 1.0, 0.0, 1.0],
@@ -17,6 +17,7 @@ impl TestHelper {
         let step_size = size / step as f32;
     
         let mut pixels = Vec::new();
+        let mut count = 0;
     
         for i in 0..step {
             for j in 0..step {
@@ -43,11 +44,12 @@ impl TestHelper {
                         a: color[3],
                         size_factor: step_size,
                     });
+                    count += 1;
                 }
             }
         }
     
-        pixels
+        (pixels, count)
     }
     
 }
