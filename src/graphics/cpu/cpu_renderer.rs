@@ -1,6 +1,6 @@
 use sdl2::{pixels::PixelFormatEnum, render::TextureCreator, video::WindowContext};
-
-use crate::{light::Light, operations::Operations, pixel::Pixel, renderer::Renderer, view_state::ViewState};
+use crate::types::{light::Light, pixel::Pixel, renderer::Renderer, view_state::ViewState};
+use super::operations::Operations;
 
 pub struct CpuRenderer<'a> {
     canvas: sdl2::render::Canvas<sdl2::video::Window>,

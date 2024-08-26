@@ -1,34 +1,23 @@
-mod cpu_renderer;
-mod test_helper;
-mod event_handler;
-mod gpu_renderer;
-mod operations;
-mod pixel;
-mod uniforms;
-mod view_state;
-mod light;
-mod renderer;
-mod event_callback;
+mod types;
+mod graphics;
+mod events;
+mod helpers;
 
+use std::time::{Duration, Instant};
 use async_std::print;
 use async_std::task;
-use event_callback::EventCallback;
 use std::env;
-use std::time::{Duration, Instant};
 
-use cpu_renderer::CpuRenderer;
-use event_handler::EventHandler;
-use gpu_renderer::GpuRenderer;
-use light::Light;
-use renderer::Renderer;
-use view_state::ViewState;
-use crate::test_helper::TestHelper;
+use types::{view_state::ViewState, light::Light, event_callback::EventCallback, renderer::Renderer};
+use graphics::{gpu::gpu_renderer::GpuRenderer, cpu::cpu_renderer::CpuRenderer};
+use events::event_handler::EventHandler;
+use helpers::test_helper::TestHelper;
 
 const WIDTH: u32 = 800;
 const HEIGHT: u32 = 600;
 
 const FPS: u32 = 60;
-const FRAME_DELAY: Duration = Duration::from_millis(1000 / FPS as u64);
+const FRAME_DURATION: Duration = Duration::from_millis(1000 / FPS as u64);
 
 #[async_std::main]
 async fn main() {
@@ -94,8 +83,8 @@ async fn main() {
 
         let process_duration = process_start.elapsed();
         print!("\rFRAME DURATION: {:4}ms\t\tFRAME RATE: {:4}", process_duration.as_millis(), 1000 / process_duration.as_millis()).await;
-        if process_duration < FRAME_DELAY {
-            task::sleep(FRAME_DELAY - process_duration).await;
+        if process_duration < FRAME_DURATION {
+            task::sleep(FRAME_DURATION - process_duration).await;
         }
     }
 }

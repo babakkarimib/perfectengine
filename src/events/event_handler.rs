@@ -1,6 +1,5 @@
 use sdl2::{event::{Event, WindowEvent}, keyboard::Keycode, mouse::MouseButton, EventPump};
-
-use crate::{event_callback::EventCallback, light::Light, view_state::ViewState};
+use crate::types::{event_callback::EventCallback, light::Light, view_state::ViewState};
 
 pub struct EventHandler {
     event_pump: EventPump,

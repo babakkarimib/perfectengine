@@ -1,10 +1,7 @@
 use async_std::task;
 use sdl2::video::Window;
-use wgpu::{util::DeviceExt, SurfaceTargetUnsafe};
-use wgpu::SurfaceConfiguration;
-
-use crate::renderer::Renderer;
-use crate::{light::Light, pixel::Pixel, uniforms::Uniforms, view_state::ViewState};
+use wgpu::{util::DeviceExt, SurfaceTargetUnsafe, SurfaceConfiguration};
+use crate::types::{light::Light, pixel::Pixel, uniforms::Uniforms, view_state::ViewState, renderer::Renderer};
 
 pub struct GpuRenderer<'a> {
     device: wgpu::Device,

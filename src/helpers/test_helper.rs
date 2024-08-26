@@ -1,4 +1,4 @@
-use crate::pixel::Pixel;
+use crate::types::pixel::Pixel;
 
 pub struct TestHelper {}
 
