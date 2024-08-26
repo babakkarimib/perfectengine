@@ -70,7 +70,7 @@ async fn main() {
         intensity: 3.5,
     };
 
-    println!("\nGPU ENABLED:\t  {}\t\tFPS LIMIT: {:5}\tPIXEL COUNT: {:10}", gpu_enabled, FPS, pixel_count);
+    println!("\nGPU ENABLED:  {}\t\tFPS LIMIT: {:5}\tPIXEL COUNT: {:10}", gpu_enabled, FPS, pixel_count);
     'running: loop {
         let process_start = Instant::now();
 
@@ -82,7 +82,7 @@ async fn main() {
         }
 
         let process_duration = process_start.elapsed();
-        print!("\rFRAME DURATION: {:4}ms\t\tFRAME RATE: {:4}", process_duration.as_millis(), 1000 / process_duration.as_millis()).await;
+        print!("\rFRAME TIME: {:4}ms\t\tFRAME RATE: {:4}", process_duration.as_millis(), 1000 / process_duration.as_millis()).await;
         if process_duration < FRAME_DURATION {
             task::sleep(FRAME_DURATION - process_duration).await;
         }
