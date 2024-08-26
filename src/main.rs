@@ -13,6 +13,7 @@ mod event_callback;
 use async_std::print;
 use async_std::task;
 use event_callback::EventCallback;
+use std::env;
 use std::time::{Duration, Instant};
 
 use cpu_renderer::CpuRenderer;
@@ -29,10 +30,19 @@ const HEIGHT: u32 = 600;
 const FPS: u32 = 60;
 const FRAME_DELAY: Duration = Duration::from_millis(1000 / FPS as u64);
 
-const GPU_ENABLED: bool = true;
-
 #[async_std::main]
 async fn main() {
+    let args: Vec<String> = env::args().collect();
+    let gpu_enabled = if let Some(arg) = args.get(1) {
+        match arg.as_str() {
+            "gpu" => true,
+            "cpu" => false,
+            _ => panic!("Invalid argument: {}. Please use 'gpu' or 'cpu'.", arg),
+        }
+    } else {
+        true
+    };
+
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
 
@@ -44,7 +54,7 @@ async fn main() {
         .unwrap();
 
     let texture_creator;
-    let mut renderer: Box<dyn Renderer<'_>> = if GPU_ENABLED {
+    let mut renderer: Box<dyn Renderer<'_>> = if gpu_enabled {
         Box::new(GpuRenderer::new(&window).await)
     } else {
         let canvas = window.into_canvas().present_vsync().build().unwrap();
@@ -71,7 +81,7 @@ async fn main() {
         intensity: 3.5,
     };
 
-    println!("\nGPU ENABLED:\t  {}\t\tFPS LIMIT: {:5}\tPIXEL COUNT: {:10}", GPU_ENABLED, FPS, pixel_count);
+    println!("\nGPU ENABLED:\t  {}\t\tFPS LIMIT: {:5}\tPIXEL COUNT: {:10}", gpu_enabled, FPS, pixel_count);
     'running: loop {
         let process_start = Instant::now();
 
