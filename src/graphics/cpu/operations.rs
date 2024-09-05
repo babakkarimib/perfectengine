@@ -29,10 +29,10 @@ impl Operations {
     
         let distance = (light_vector.0.powi(2) + light_vector.1.powi(2) + light_vector.2.powi(2)).sqrt();
     
-        let adjusted_r = (r as f32 * intensity / distance).clamp(0.0, 1.0);
-        let adjusted_g = (g as f32 * intensity / distance).clamp(0.0, 1.0);
-        let adjusted_b = (b as f32 * intensity / distance).clamp(0.0, 1.0);
-    
+        let adjusted_r = (r * intensity / distance).clamp(0.0, 1.0);
+        let adjusted_g = (g * intensity / distance).clamp(0.0, 1.0);
+        let adjusted_b = (b * intensity / distance).clamp(0.0, 1.0);
+
         (adjusted_r, adjusted_g, adjusted_b)
     }
     
@@ -75,9 +75,9 @@ impl Operations {
                     if z < depth_buffer[depth_index] {
                         depth_buffer[depth_index] = z;
                         data[index] = color[3];
-                        data[index + 1] = color[0];
+                        data[index + 1] = color[2];
                         data[index + 2] = color[1];
-                        data[index + 3] = color[2];
+                        data[index + 3] = color[0];
                     }
                 }
             }

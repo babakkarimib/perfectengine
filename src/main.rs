@@ -11,7 +11,7 @@ use std::env;
 use types::{view_state::ViewState, light::Light, event_callback::EventCallback, renderer::Renderer};
 use graphics::{gpu::gpu_renderer::GpuRenderer, cpu::cpu_renderer::CpuRenderer};
 use events::event_handler::EventHandler;
-use helpers::test_helper::TestHelper;
+use helpers::{test_helper::TestHelper, model_helper::ModelHelper};
 
 const WIDTH: u32 = 800;
 const HEIGHT: u32 = 600;
@@ -43,7 +43,7 @@ async fn main() {
         .unwrap();
 
     let texture_creator;
-    let mut renderer: Box<dyn Renderer<'_>> = if gpu_enabled {
+    let mut renderer: Box<dyn Renderer<'static>> = if gpu_enabled {
         Box::new(GpuRenderer::new(&window).await)
     } else {
         let canvas = window.into_canvas().present_vsync().build().unwrap();
@@ -51,8 +51,13 @@ async fn main() {
         Box::new(CpuRenderer::new(canvas, &texture_creator))
     };
 
-    let (pixels, pixel_count) = TestHelper::generate_cube_pixels(2000000, 6.0);
+    let mut total_pixel_count = 0;
+    let (pixels, pixel_count) = TestHelper::generate_cube_pixels(1000000, 4.0);
     renderer.load_pixels(pixels);
+    total_pixel_count += pixel_count;
+    let (pixels, pixel_count) = ModelHelper::load_msh_file().await;
+    renderer.load_pixels(pixels);
+    total_pixel_count += pixel_count;
 
     let event_pump = sdl_context.event_pump().unwrap();
     let mut event_handler = EventHandler::new(event_pump);
@@ -61,16 +66,16 @@ async fn main() {
         angle_x: 0.0,
         angle_y: 0.0,
         scale: 300.0,
-        distance: 10.0
+        distance: 250.0
     };
     let mut light = Light {
         x: 5.0,
         y: 4.0,
-        z: -4.0,
-        intensity: 3.5,
+        z: -50.0,
+        intensity: 40.0,
     };
 
-    println!("\nGPU ENABLED:  {}\t\tFPS LIMIT: {:5}\tPIXEL COUNT: {:10}", gpu_enabled, FPS, pixel_count);
+    println!("\nGPU ENABLED:  {}\t\tFPS LIMIT: {:5}\tPIXEL COUNT: {:10}", gpu_enabled, FPS, total_pixel_count);
     'running: loop {
         let process_start = Instant::now();
 

@@ -66,8 +66,8 @@ impl EventHandler {
                     if self.is_right_dragging {
                         let dx = x - self.last_x;
                         let dy = y - self.last_y;
-                        light.x += dx as f32 * 0.1;
-                        light.y -= dy as f32 * 0.1;
+                        light.x += dx as f32 * 0.5;
+                        light.y -= dy as f32 * 0.5;
                         self.last_x = x;
                         self.last_y = y;
                     }

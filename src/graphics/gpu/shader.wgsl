@@ -58,7 +58,7 @@ fn apply_lighting(
     let adjusted_g = clamp(g * uniforms.intensity / distance, 0.0, 1.0);
     let adjusted_b = clamp(b * uniforms.intensity / distance, 0.0, 1.0);
 
-    return vec3<f32>(adjusted_b, adjusted_g, adjusted_r);
+    return vec3<f32>(adjusted_r, adjusted_g, adjusted_b);
 }
 
 fn project(v: vec3<f32>) -> vec2<f32> {
