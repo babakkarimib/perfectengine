@@ -52,10 +52,10 @@ async fn main() {
     };
 
     let mut total_pixel_count = 0;
-    let (pixels, pixel_count) = TestHelper::generate_cube_pixels(1000000, 4.0);
+    let (pixels, pixel_count) = TestHelper::generate_cube_pixels(400000, 4.0);
     renderer.load_pixels(pixels);
     total_pixel_count += pixel_count;
-    let (pixels, pixel_count) = ModelHelper::load_msh_file().await;
+    let (pixels, pixel_count) = ModelHelper::load_msh_file_with_texture().await;
     renderer.load_pixels(pixels);
     total_pixel_count += pixel_count;
 
@@ -66,12 +66,12 @@ async fn main() {
         angle_x: 0.0,
         angle_y: 0.0,
         scale: 300.0,
-        distance: 250.0
+        distance: 255.0
     };
     let mut light = Light {
-        x: 5.0,
-        y: 4.0,
-        z: -50.0,
+        x: 40.0,
+        y: 20.0,
+        z: -120.0,
         intensity: 40.0,
     };
 
