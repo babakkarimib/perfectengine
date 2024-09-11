@@ -1,6 +1,6 @@
 use std::env;
 use async_std::fs;
-use crate::types::pixel::Pixel;
+use crate::{graphics::cpu::operations::Operations, types::pixel::Pixel};
 
 pub struct ModelHelper {}
 
@@ -17,7 +17,6 @@ impl ModelHelper {
         let texture_file_path = current_dir.join("src").join("helpers").join("model_helper").join("texture.png");
         let img = fs::read(texture_file_path).await.expect("Failed to read image");
         let img = image::load_from_memory(&img).expect("Failed to decode image").to_rgba8();
-        let (width, height) = img.dimensions();
     
         let mut count = 0;
 
@@ -28,8 +27,7 @@ impl ModelHelper {
                     let y = node.y as f32;
                     let z = node.z as f32;
 
-                    let tx = (count % width as usize) as u32;
-                    let ty = (count % height as usize) as u32;
+                    let (tx, ty) = Operations::project(300.0, 200.0, 800.0, 800.0, x, y, z);
                     
                     let rgba = img.get_pixel(tx, ty);
     
@@ -37,10 +35,10 @@ impl ModelHelper {
                         x,
                         y,
                         z,
-                        r: rgba.0[0] as f32 / 255.0,
-                        g: rgba.0[1] as f32 / 255.0,
-                        b: rgba.0[2] as f32 / 255.0,
-                        a: 1.0,
+                        r: rgba[0] as f32 / 255.0,
+                        g: rgba[1] as f32 / 255.0,
+                        b: rgba[2] as f32 / 255.0,
+                        a: rgba[3] as f32 / 255.0,
                         size_factor: 1.7,
                     });
 

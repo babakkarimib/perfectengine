@@ -1,2 +1,2 @@
 pub mod cpu_renderer;
-mod operations;
+pub mod operations;

@@ -71,7 +71,7 @@ async fn main() {
     let mut light = Light {
         x: 40.0,
         y: 20.0,
-        z: -120.0,
+        z: -100.0,
         intensity: 40.0,
     };
 
