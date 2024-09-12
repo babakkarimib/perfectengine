@@ -4,7 +4,7 @@ mod events;
 mod helpers;
 
 use std::time::{Duration, Instant};
-use async_std::print;
+// use async_std::print;
 use async_std::task;
 use helpers::model_helper;
 // use helpers::test_helper;
