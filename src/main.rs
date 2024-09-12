@@ -67,7 +67,7 @@ async fn main() {
         angle_x: 0.0,
         angle_y: 0.0,
         scale: 300.0,
-        distance: 250.0
+        distance: 270.0
     };
     let mut light = Light {
         x: 20.0,
@@ -88,7 +88,7 @@ async fn main() {
         }
 
         let process_duration = process_start.elapsed();
-        print!("\rFRAME TIME: {:4}ms\t\tFRAME RATE: {:4}", process_duration.as_millis(), 1000 / process_duration.as_millis()).await;
+        // print!("\rFRAME TIME: {:4}ms\t\tFRAME RATE: {:4}", process_duration.as_millis(), 1000 / process_duration.as_millis()).await;
         if process_duration < FRAME_DURATION {
             task::sleep(FRAME_DURATION - process_duration).await;
         }
