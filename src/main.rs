@@ -6,12 +6,13 @@ mod helpers;
 use std::time::{Duration, Instant};
 use async_std::print;
 use async_std::task;
+use helpers::model_helper;
+// use helpers::test_helper;
 use std::env;
 
 use types::{view_state::ViewState, light::Light, event_callback::EventCallback, renderer::Renderer};
 use graphics::{gpu::gpu_renderer::GpuRenderer, cpu::cpu_renderer::CpuRenderer};
 use events::event_handler::EventHandler;
-use helpers::{test_helper::TestHelper, model_helper::ModelHelper};
 
 const WIDTH: u32 = 800;
 const HEIGHT: u32 = 600;
@@ -52,10 +53,10 @@ async fn main() {
     };
 
     let mut total_pixel_count = 0;
-    let (pixels, pixel_count) = TestHelper::generate_cube_pixels(400000, 4.0);
-    renderer.load_pixels(pixels);
-    total_pixel_count += pixel_count;
-    let (pixels, pixel_count) = ModelHelper::load_msh_file_with_texture().await;
+    // let (pixels, pixel_count) = test_helper::generate_cube_pixels(400000, 4.0);
+    // renderer.load_pixels(pixels);
+    // total_pixel_count += pixel_count;
+    let (pixels, pixel_count) = model_helper::load_msh_file_with_texture().await;
     renderer.load_pixels(pixels);
     total_pixel_count += pixel_count;
 
@@ -66,12 +67,12 @@ async fn main() {
         angle_x: 0.0,
         angle_y: 0.0,
         scale: 300.0,
-        distance: 255.0
+        distance: 250.0
     };
     let mut light = Light {
-        x: 40.0,
-        y: 20.0,
-        z: -100.0,
+        x: 20.0,
+        y: 0.0,
+        z: -110.0,
         intensity: 40.0,
     };
 
