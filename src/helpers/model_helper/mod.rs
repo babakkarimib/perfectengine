@@ -1,6 +1,6 @@
 use std::env;
 use async_std::fs;
-use image::{GenericImageView, Rgba};
+use image::GenericImageView;
 use crate::{graphics::cpu::operations::Operations, types::pixel::Pixel};
 
 pub async fn load_msh_file_with_texture() -> (Vec<Pixel>, usize) {
@@ -40,18 +40,7 @@ pub async fn load_msh_file_with_texture() -> (Vec<Pixel>, usize) {
                 let angle_y: f32 = 0.0;
                 let (rx, ry, rz) = Operations::rotate(angle_x.sin(), angle_y.sin(), angle_x.cos(), angle_y.cos(), x, y, z);
                 let (tx, ty) = Operations::project(280.0, 220.0, width, height, rx, ry, rz);
-                
-                let rgba = if rz < 0.0 && f_img.in_bounds(tx - w_disposition, ty - h_disposition) {
-                    let pixel = f_img.get_pixel(tx - w_disposition, ty - h_disposition);
-                    let Rgba(data) = pixel;
-                    if data[3] != 0 {
-                        pixel
-                    } else {
-                        img.get_pixel(tx, ty)
-                    }
-                } else {
-                    img.get_pixel(tx, ty)
-                };
+                let rgba = img.get_pixel(tx, ty);
 
                 pixels.push(Pixel {
                     x: rx,
@@ -65,6 +54,40 @@ pub async fn load_msh_file_with_texture() -> (Vec<Pixel>, usize) {
                 });
 
                 count += 1;
+            }
+        }
+    }
+
+    for i in 0..count {
+        let pixel = &mut pixels[i];
+        let (tx, ty) = Operations::project(280.0, 220.0, width, height, pixel.x, pixel.y, pixel.z);
+
+        if pixel.z < 0.0 && f_img.in_bounds(tx - w_disposition, ty - h_disposition) {
+            let rgba = f_img.get_pixel(tx - w_disposition, ty - h_disposition);
+            if rgba[3] != 0 {
+                pixel.r = rgba[0] as f32 / 255.0;
+                pixel.g = rgba[1] as f32 / 255.0;
+                pixel.b = rgba[2] as f32 / 255.0;
+                pixel.a = rgba[3] as f32 / 255.0;
+            }
+        }
+    }
+
+    for i in 0..count {
+        let pixel = &mut pixels[i];
+
+        let angle_x: f32 = 0.40;
+        let angle_y: f32 = 85.0;
+        let (rx, ry, rz) = Operations::rotate(angle_x.sin(), angle_y.sin(), angle_x.cos(), angle_y.cos(), pixel.x, pixel.y, pixel.z);
+        let (tx, ty) = Operations::project(280.0, 220.0, width, height, rx, ry, rz);
+
+        if rz < 0.0 && f_img.in_bounds(tx - w_disposition, ty - h_disposition) {
+            let rgba = f_img.get_pixel(tx - w_disposition, ty - h_disposition);
+            if rgba[3] != 0 {
+                pixel.r = rgba[0] as f32 / 255.0;
+                pixel.g = rgba[1] as f32 / 255.0;
+                pixel.b = rgba[2] as f32 / 255.0;
+                pixel.a = rgba[3] as f32 / 255.0;
             }
         }
     }
