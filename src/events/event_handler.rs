@@ -46,106 +46,25 @@ impl EventHandler {
                     .. 
                 } => return EventCallback::Resized(width as u32, height as u32),
                 Event::Quit { .. }
-                | Event::KeyDown {
-                    keycode: Some(Keycode::Escape),
-                    .. 
-                } => return EventCallback::Quit,
-                Event::KeyDown {
-                    keycode: Some(Keycode::W),
-                    .. 
-                } => {
-                    self.move_forward = true;
+                | Event::KeyDown { keycode: Some(Keycode::Escape), .. } => return EventCallback::Quit,
+                
+                // Folding KeyDown and KeyUp events into a single match
+                Event::KeyDown { keycode: Some(key), .. } | Event::KeyUp { keycode: Some(key), .. } => {
+                    let pressed = matches!(event, Event::KeyDown { .. });
+
+                    match key {
+                        Keycode::W => self.move_forward = pressed,
+                        Keycode::S => self.move_backward = pressed,
+                        Keycode::A => self.move_left = pressed,
+                        Keycode::D => self.move_right = pressed,
+                        Keycode::Up => self.r_move_forward = pressed,
+                        Keycode::Down => self.r_move_backward = pressed,
+                        Keycode::Left => self.r_move_left = pressed,
+                        Keycode::Right => self.r_move_right = pressed,
+                        _ => {}
+                    }
                 },
-                Event::KeyUp {
-                    keycode: Some(Keycode::W),
-                    .. 
-                } => {
-                    self.move_forward = false;
-                },
-                Event::KeyDown {
-                    keycode: Some(Keycode::S),
-                    .. 
-                } => {
-                    self.move_backward = true;
-                },
-                Event::KeyUp {
-                    keycode: Some(Keycode::S),
-                    .. 
-                } => {
-                    self.move_backward = false;
-                },
-                Event::KeyDown {
-                    keycode: Some(Keycode::A),
-                    .. 
-                } => {
-                    self.move_left = true;
-                },
-                Event::KeyUp {
-                    keycode: Some(Keycode::A),
-                    .. 
-                } => {
-                    self.move_left = false;
-                },
-                Event::KeyDown {
-                    keycode: Some(Keycode::D),
-                    .. 
-                } => {
-                    self.move_right = true;
-                },
-                Event::KeyUp {
-                    keycode: Some(Keycode::D),
-                    .. 
-                } => {
-                    self.move_right = false;
-                },
-                Event::KeyDown {
-                    keycode: Some(Keycode::Up),
-                    .. 
-                } => {
-                    self.r_move_forward = true;
-                },
-                Event::KeyUp {
-                    keycode: Some(Keycode::Up),
-                    .. 
-                } => {
-                    self.r_move_forward = false;
-                },
-                Event::KeyDown {
-                    keycode: Some(Keycode::Down),
-                    .. 
-                } => {
-                    self.r_move_backward = true;
-                },
-                Event::KeyUp {
-                    keycode: Some(Keycode::Down),
-                    .. 
-                } => {
-                    self.r_move_backward = false;
-                },
-                Event::KeyDown {
-                    keycode: Some(Keycode::Left),
-                    .. 
-                } => {
-                    self.r_move_left = true;
-                },
-                Event::KeyUp {
-                    keycode: Some(Keycode::Left),
-                    .. 
-                } => {
-                    self.r_move_left = false;
-                },
-                Event::KeyDown {
-                    keycode: Some(Keycode::Right),
-                    .. 
-                } => {
-                    self.r_move_right = true;
-                },
-                Event::KeyUp {
-                    keycode: Some(Keycode::Right),
-                    .. 
-                } => {
-                    self.r_move_right = false;
-                },
+
                 Event::MouseButtonDown { mouse_btn, x, y, .. } => match mouse_btn {
                     MouseButton::Left => {
                         self.drag = true;
@@ -165,15 +84,9 @@ impl EventHandler {
                     _ => {}
                 },
                 Event::MouseButtonUp { mouse_btn, .. } => match mouse_btn {
-                    MouseButton::Left => {
-                        self.drag = false;
-                    },
-                    MouseButton::Right => {
-                        self.r_drag = false;
-                    },
-                    MouseButton::Middle => {
-                        self.m_drag = false;
-                    },
+                    MouseButton::Left => self.drag = false,
+                    MouseButton::Right => self.r_drag = false,
+                    MouseButton::Middle => self.m_drag = false,
                     _ => {}
                 },
                 Event::MouseMotion { x, y, .. } => {
