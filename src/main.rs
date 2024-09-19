@@ -89,11 +89,19 @@ async fn main() {
     let event_pump = sdl_context.event_pump().unwrap();
     let mut event_handler = EventHandler::new(event_pump);
 
-    let mut view_state = ViewState {
+    let mut view_state = ViewState { 
         angle_x: 0.0,
         angle_y: 0.0,
-        scale: 300.0,
-        distance: 270.0
+        c_angle_x: 0.0,
+        c_angle_y: 0.0,
+        camera_x: 0.0,
+        camera_y: 0.0,
+        camera_z: 250.0,
+        ref_x: 0.0,
+        ref_y: 0.0,
+        ref_z: 0.0,
+        distance: 300.0,
+        scale: 250.0 
     };
     let mut light = Light {
         x: 20.0,

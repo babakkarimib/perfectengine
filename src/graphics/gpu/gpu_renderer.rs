@@ -1,7 +1,7 @@
 use async_std::task;
 use sdl2::video::Window;
 use wgpu::{util::DeviceExt, SurfaceTargetUnsafe, SurfaceConfiguration};
-use crate::types::{light::Light, pixel::Pixel, uniforms::Uniforms, view_state::ViewState, renderer::Renderer};
+use crate::types::{light::Light, pixel::Pixel, renderer::Renderer, uniforms::Uniforms, view_state::ViewState};
 
 pub struct GpuRenderer<'a> {
     device: wgpu::Device,
@@ -105,26 +105,24 @@ impl Renderer<'_> for GpuRenderer<'_> {
     fn render(&mut self, view_state: &ViewState, light: &Light) {
         const BATCH_SIZE: usize = 65535;
 
-        let ViewState {
-            angle_x,
-            angle_y,
-            scale,
-            distance,
-        } = *view_state;
-
         let uniforms = Uniforms {
-            sx: angle_x.sin(),
-            sy: angle_y.sin(),
-            cx: angle_x.cos(),
-            cy: angle_y.cos(),
-            scale,
-            distance,
+            angle_x: view_state.angle_x,
+            angle_y: view_state.angle_y,
+            c_angle_x: view_state.c_angle_x,
+            c_angle_y: view_state.c_angle_y,
+            scale: view_state.scale,
             canvas_width: self.canvas_width,
             canvas_height: self.canvas_height,
             light_x: light.x,
             light_y: light.y,
             light_z: light.z,
             intensity: light.intensity,
+            camera_x: view_state.camera_x,
+            camera_y: view_state.camera_y,
+            camera_z: view_state.camera_z,
+            ref_x: view_state.ref_x,
+            ref_y: view_state.ref_y,
+            ref_z: view_state.ref_z,
         };
 
         let uniform_buffer = create_uniform_buffer(&self.device, uniforms);
