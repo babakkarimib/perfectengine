@@ -42,7 +42,7 @@ impl Renderer<'_> for CpuRenderer<'_> {
             let color = Operations::apply_lighting(rotated.0, rotated.1, rotated.2, light.x, light.y, light.z, light.intensity, pixel.r, pixel.g, pixel.b);
             let color = [color.0, color.1, color.2, pixel.a];
 
-            let projected = Operations::project(view_state.scale, view_state.distance, self.canvas_width as f32, self.canvas_height as f32, rotated.0, rotated.1, rotated.2);
+            let projected = Operations::project(view_state.scale, view_state.distance, self.canvas_width as f32, self.canvas_height as f32, rotated.0, rotated.1, rotated.2, view_state.perspective_factor);
             let block_size = (view_state.scale / (view_state.distance + rotated.2) * pixel.size_factor).ceil() as u32;
 
             Operations::draw_pixel(&mut pixel_data, &mut depth_buffer, self.canvas_width, self.canvas_height, projected.0, projected.1, color, block_size, rotated.2);

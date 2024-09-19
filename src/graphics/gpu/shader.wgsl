@@ -15,6 +15,7 @@ struct Uniforms {
     c_angle_x: f32,
     c_angle_y: f32,
     scale: f32,
+    perspective_factor: f32,
     canvas_width: f32,
     canvas_height: f32,
     light_x: f32,
@@ -97,7 +98,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     rotated_position.z -= uniforms.camera_z;
 
     // Calculate scale factor
-    let scale_factor = uniforms.scale / (uniforms.camera_z + rotated_position.z / 2);
+    let scale_factor = uniforms.scale / (uniforms.camera_z + rotated_position.z * uniforms.perspective_factor);
 
     // Project the rotated 3D position to 2D space
     let projected = project(rotated_position, scale_factor);

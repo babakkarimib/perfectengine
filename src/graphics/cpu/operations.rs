@@ -44,8 +44,9 @@ impl Operations {
         x: f32,
         y: f32,
         z: f32,
+        perspective_factor: f32
     ) -> (u32, u32) {
-        let factor = scale / (distance + z);
+        let factor = scale / (distance + z * perspective_factor);
         (
             (x * factor + canvas_width / 2.0) as u32,
             (-y * factor + canvas_height / 2.0) as u32,

@@ -31,7 +31,7 @@ pub async fn load_msh_file_with_texture() -> (Vec<Pixel>, usize) {
                 let angle_x: f32 = -89.75;
                 let angle_y: f32 = 0.0;
                 let (rx, ry, rz) = Operations::rotate(angle_x.sin(), angle_y.sin(), angle_x.cos(), angle_y.cos(), x, y, z);
-                let (tx, ty) = Operations::project(280.0, 220.0, width, height, rx, ry, rz);
+                let (tx, ty) = Operations::project(280.0, 220.0, width, height, rx, ry, rz, 0.0);
                 let rgba = img.get_pixel(tx, ty);
 
                 pixels.push(Pixel {
@@ -50,30 +50,30 @@ pub async fn load_msh_file_with_texture() -> (Vec<Pixel>, usize) {
         }
     }
 
-    let view_state = ViewState { angle_x: 0.0, angle_y: 0.0, scale: 280.0, distance: 220.0, c_angle_x: 0.0, c_angle_y: 0.0, camera_x: 0.0, camera_y: 0.0, camera_z: 0.0, ref_x: 0.0, ref_y: 0.0, ref_z: 0.0 };
-    load_texture(&mut pixels, count, view_state, width, height, "flower.png").await;
+    let view_state = ViewState { angle_x: 0.0, angle_y: 0.2, scale: 280.0, distance: 220.0, c_angle_x: 0.0, c_angle_y: 0.0, camera_x: 0.0, camera_y: 0.0, camera_z: 0.0, ref_x: 0.0, ref_y: 0.0, ref_z: 0.0, perspective_factor: 0.0 };
+    load_texture(&mut pixels, count, view_state, width, height, "flower.png", 0, 40).await;
 
-    let view_state = ViewState { angle_x: 0.45, angle_y: 85.0, scale: 280.0, distance: 220.0, c_angle_x: 0.0, c_angle_y: 0.0, camera_x: 0.0, camera_y: 0.0, camera_z: 0.0, ref_x: 0.0, ref_y: 0.0, ref_z: 0.0 };
-    load_texture(&mut pixels, count, view_state, width, height, "flower.png").await;
+    let view_state = ViewState { angle_x: 0.45, angle_y: 85.0, scale: 280.0, distance: 220.0, c_angle_x: 0.0, c_angle_y: 0.0, camera_x: 0.0, camera_y: 0.0, camera_z: 0.0, ref_x: 0.0, ref_y: 0.0, ref_z: 0.0, perspective_factor: 0.0 };
+    load_texture(&mut pixels, count, view_state, width, height, "flower.png",0, 40).await;
 
     (pixels, count)
 }
 
-async fn load_texture(pixels: &mut Vec<Pixel>, count: usize, view_state: ViewState, width: f32, height: f32, path: &str) {
+async fn load_texture(pixels: &mut Vec<Pixel>, count: usize, view_state: ViewState, width: f32, height: f32, path: &str, wd: u32, hd: u32) {
     let current_dir = env::current_dir().expect("Failed to get current directory");
     let texture_file_path = current_dir.join("src").join("helpers").join("model_helper").join(path);
     let img = fs::read(texture_file_path).await.expect("Failed to read image");
     let img = image::load_from_memory(&img).expect("Failed to decode image").to_rgba8();
     
     let (f_width, f_height) = img.dimensions();
-    let w_disposition = (width as u32 / 2) - (f_width / 2);
-    let h_disposition = (height as u32 / 2) - (f_height / 2) + 60;
+    let w_disposition = (width as u32 / 2) - (f_width / 2) + wd;
+    let h_disposition = (height as u32 / 2) - (f_height / 2) + hd;
 
     for i in 0..count {
         let pixel = &mut pixels[i];
 
         let (rx, ry, rz) = Operations::rotate(view_state.angle_x.sin(), view_state.angle_y.sin(), view_state.angle_x.cos(), view_state.angle_y.cos(), pixel.x, pixel.y, pixel.z);
-        let (tx, ty) = Operations::project(view_state.scale, view_state.distance, width, height, rx, ry, rz);
+        let (tx, ty) = Operations::project(view_state.scale, view_state.distance, width, height, rx, ry, rz, view_state.perspective_factor);
 
         if rz < 0.0 && img.in_bounds(tx - w_disposition, ty - h_disposition) {
             let rgba = img.get_pixel(tx - w_disposition, ty - h_disposition);

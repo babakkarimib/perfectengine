@@ -100,8 +100,9 @@ async fn main() {
         ref_x: 0.0,
         ref_y: 0.0,
         ref_z: 0.0,
-        distance: 300.0,
-        scale: 250.0 
+        distance: 0.0,
+        scale: 250.0,
+        perspective_factor: 0.5
     };
     let mut light = Light {
         x: 20.0,
