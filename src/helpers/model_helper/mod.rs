@@ -50,10 +50,10 @@ pub async fn load_msh_file_with_texture() -> (Vec<Pixel>, usize) {
         }
     }
 
-    let view_state = ViewState { angle_x: 0.0, angle_y: 0.2, scale: 280.0, distance: 220.0, c_angle_x: 0.0, c_angle_y: 0.0, camera_x: 0.0, camera_y: 0.0, camera_z: 0.0, ref_x: 0.0, ref_y: 0.0, ref_z: 0.0, perspective_factor: 0.0 };
+    let view_state = ViewState { angle_x: 0.0, angle_y: 0.2, scale: 280.0, focal_distance: 220.0, c_angle_x: 0.0, c_angle_y: 0.0, camera_x: 0.0, camera_y: 0.0, camera_z: 0.0, ref_x: 0.0, ref_y: 0.0, ref_z: 0.0, perspective_factor: 0.0 };
     load_texture(&mut pixels, count, view_state, width, height, "flower.png", 0, 40).await;
 
-    let view_state = ViewState { angle_x: 0.45, angle_y: 85.0, scale: 280.0, distance: 220.0, c_angle_x: 0.0, c_angle_y: 0.0, camera_x: 0.0, camera_y: 0.0, camera_z: 0.0, ref_x: 0.0, ref_y: 0.0, ref_z: 0.0, perspective_factor: 0.0 };
+    let view_state = ViewState { angle_x: 0.45, angle_y: 85.0, scale: 280.0, focal_distance: 220.0, c_angle_x: 0.0, c_angle_y: 0.0, camera_x: 0.0, camera_y: 0.0, camera_z: 0.0, ref_x: 0.0, ref_y: 0.0, ref_z: 0.0, perspective_factor: 0.0 };
     load_texture(&mut pixels, count, view_state, width, height, "flower.png",0, 40).await;
 
     (pixels, count)
@@ -73,7 +73,7 @@ async fn load_texture(pixels: &mut Vec<Pixel>, count: usize, view_state: ViewSta
         let pixel = &mut pixels[i];
 
         let (rx, ry, rz) = Operations::rotate(view_state.angle_x.sin(), view_state.angle_y.sin(), view_state.angle_x.cos(), view_state.angle_y.cos(), pixel.x, pixel.y, pixel.z);
-        let (tx, ty) = Operations::project(view_state.scale, view_state.distance, width, height, rx, ry, rz, view_state.perspective_factor);
+        let (tx, ty) = Operations::project(view_state.scale, view_state.focal_distance, width, height, rx, ry, rz, view_state.perspective_factor);
 
         if rz < 0.0 && img.in_bounds(tx - w_disposition, ty - h_disposition) {
             let rgba = img.get_pixel(tx - w_disposition, ty - h_disposition);

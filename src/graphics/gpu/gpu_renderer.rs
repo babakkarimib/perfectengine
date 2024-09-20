@@ -112,6 +112,7 @@ impl Renderer<'_> for GpuRenderer<'_> {
             c_angle_y: view_state.c_angle_y,
             scale: view_state.scale,
             perspective_factor: view_state.perspective_factor,
+            focal_distance: view_state.focal_distance,
             canvas_width: self.canvas_width,
             canvas_height: self.canvas_height,
             light_x: light.x,
