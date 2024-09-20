@@ -64,7 +64,6 @@ impl EventHandler {
                         _ => {}
                     }
                 },
-
                 Event::MouseButtonDown { mouse_btn, x, y, .. } => match mouse_btn {
                     MouseButton::Left => {
                         self.drag = true;
@@ -125,30 +124,14 @@ impl EventHandler {
             }
         }
 
-        if self.move_forward {
-            view_state.camera_z -= 1.0;
-        }
-        if self.move_backward {
-            view_state.camera_z += 1.0;
-        }
-        if self.move_left {
-            view_state.camera_x += 1.0;
-        }
-        if self.move_right {
-            view_state.camera_x -= 1.0;
-        }
-        if self.r_move_forward {
-            view_state.ref_z -= 1.0;
-        }
-        if self.r_move_backward {
-            view_state.ref_z += 1.0;
-        }
-        if self.r_move_left {
-            view_state.ref_x += 1.0;
-        }
-        if self.r_move_right {
-            view_state.ref_x -= 1.0;
-        }
+        if self.move_forward { view_state.camera_z -= 2.0; }
+        if self.move_backward { view_state.camera_z += 2.0; }
+        if self.move_left { view_state.camera_x += 2.0; }
+        if self.move_right { view_state.camera_x -= 2.0; }
+        if self.r_move_forward { view_state.ref_z -= 2.0; }
+        if self.r_move_backward {  view_state.ref_z += 2.0; }
+        if self.r_move_left { view_state.ref_x += 2.0; }
+        if self.r_move_right { view_state.ref_x -= 2.0; }
 
         EventCallback::Next
     }
