@@ -1,56 +1,52 @@
 pub struct Operations {}
 
 impl Operations {
-    pub fn rotate(sx: f32, sy: f32, cx: f32, cy: f32, x: f32, y: f32, z: f32) -> (f32, f32, f32) {
-        let tmp_x = x;
-        let tmp_y = cx * y - sx * z;
-        let tmp_z = sx * y + cx * z;
+    pub fn rotate(v: (f32, f32, f32), angle: (f32, f32, f32)) -> (f32, f32, f32) {
+        let (x, y, z) = v;
+        let (angle_x, angle_y, angle_z) = angle;
     
-        let final_x = cy * tmp_x - sy * tmp_z;
-        let final_y = tmp_y;
-        let final_z = sy * tmp_x + cy * tmp_z;
+        let cos_x = angle_x.cos();
+        let sin_x = angle_x.sin();
+        let cos_y = angle_y.cos();
+        let sin_y = angle_y.sin();
+        let cos_z = angle_z.cos();
+        let sin_z = angle_z.sin();
     
-        (final_x, final_y, final_z)
+        let tmp_y = cos_x * y - sin_x * z;
+        let tmp_z = sin_x * y + cos_x * z;
+        let rotated_x = (x, tmp_y, tmp_z);
+    
+        let tmp_x = cos_y * rotated_x.0 + sin_y * rotated_x.2;
+        let final_z = -sin_y * rotated_x.0 + cos_y * rotated_x.2;
+        let rotated_y = (tmp_x, rotated_x.1, final_z);
+    
+        let final_x = cos_z * rotated_y.0 - sin_z * rotated_y.1;
+        let final_y = sin_z * rotated_y.0 + cos_z * rotated_y.1;
+    
+        (final_x, final_y, rotated_y.2)
     }
     
-    pub fn apply_lighting(
-        x: f32,
-        y: f32,
-        z: f32,
-        light_x: f32,
-        light_y: f32,
-        light_z: f32,
-        intensity: f32,
-        r: f32,
-        g: f32,
-        b: f32,
-    ) -> (f32, f32, f32) {
-        let light_vector = (light_x - x, light_y - y, light_z - z);
+    pub fn apply_lighting(position: (f32, f32, f32), color: (f32, f32, f32), light_position: (f32, f32, f32), intensity: f32) -> (f32, f32, f32) {
+        let (x, y, z) = position;
+        let (light_x, light_y, light_z) = light_position;
     
-        let distance = (light_vector.0.powi(2) + light_vector.1.powi(2) + light_vector.2.powi(2)).sqrt();
+        let distance = ((light_x - x).powi(2) + (light_y - y).powi(2) + (light_z - z).powi(2)).sqrt();
+        let attenuation = intensity / distance;
     
-        let adjusted_r = (r * intensity / distance).clamp(0.0, 1.0);
-        let adjusted_g = (g * intensity / distance).clamp(0.0, 1.0);
-        let adjusted_b = (b * intensity / distance).clamp(0.0, 1.0);
-
+        let adjusted_r = (color.0 * attenuation).clamp(0.0, 1.0);
+        let adjusted_g = (color.1 * attenuation).clamp(0.0, 1.0);
+        let adjusted_b = (color.2 * attenuation).clamp(0.0, 1.0);
+    
         (adjusted_r, adjusted_g, adjusted_b)
     }
     
-    pub fn project(
-        scale: f32,
-        distance: f32,
-        canvas_width: f32,
-        canvas_height: f32,
-        x: f32,
-        y: f32,
-        z: f32,
-        perspective_factor: f32
-    ) -> (u32, u32) {
-        let factor = scale / (distance + z * perspective_factor);
-        (
-            (x * factor + canvas_width / 2.0) as u32,
-            (-y * factor + canvas_height / 2.0) as u32,
-        )
+    pub fn project(v: (f32, f32, f32), scale_factor: f32, camera_x: f32, camera_y: f32, canvas_width: f32, canvas_height: f32) -> (f32, f32) {
+        let (x, y, _) = v;
+    
+        let projected_x = (x + camera_x) * scale_factor + canvas_width / 2.0;
+        let projected_y = -(y + camera_y) * scale_factor + canvas_height / 2.0;
+    
+        (projected_x, projected_y)
     }
     
     pub fn draw_pixel(

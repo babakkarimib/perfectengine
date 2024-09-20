@@ -30,9 +30,19 @@ pub async fn load_msh_file_with_texture() -> (Vec<Pixel>, usize) {
 
                 let angle_x: f32 = -89.75;
                 let angle_y: f32 = 0.0;
-                let (rx, ry, rz) = Operations::rotate(angle_x.sin(), angle_y.sin(), angle_x.cos(), angle_y.cos(), x, y, z);
-                let (tx, ty) = Operations::project(280.0, 220.0, width, height, rx, ry, rz, 0.0);
-                let rgba = img.get_pixel(tx, ty);
+                let (rx, ry, rz) = Operations::rotate(
+                    (x, y, z), 
+                    (angle_x, angle_y, 0.0)
+                );
+                let scale_factor = 280.0 / (220.0 + rz * 0.0);
+                let (tx, ty) = Operations::project(
+                    (rx, ry, rz), 
+                    scale_factor, 
+                    0.0, 0.0,
+                    width as f32, 
+                    height as f32
+                );
+                let rgba = img.get_pixel(tx as u32, ty as u32);
 
                 pixels.push(Pixel {
                     x: rx,
@@ -50,7 +60,7 @@ pub async fn load_msh_file_with_texture() -> (Vec<Pixel>, usize) {
         }
     }
 
-    let view_state = ViewState { angle_x: 0.0, angle_y: 0.2, scale: 280.0, focal_distance: 220.0, c_angle_x: 0.0, c_angle_y: 0.0, camera_x: 0.0, camera_y: 0.0, camera_z: 0.0, ref_x: 0.0, ref_y: 0.0, ref_z: 0.0, perspective_factor: 0.0 };
+    let view_state = ViewState { angle_x: 0.0, angle_y: 0.0, scale: 280.0, focal_distance: 220.0, c_angle_x: 0.0, c_angle_y: 0.0, camera_x: 0.0, camera_y: 0.0, camera_z: 0.0, ref_x: 0.0, ref_y: 0.0, ref_z: 0.0, perspective_factor: 0.0 };
     load_texture(&mut pixels, count, view_state, width, height, "flower.png", 0, 40).await;
 
     let view_state = ViewState { angle_x: 0.45, angle_y: 85.0, scale: 280.0, focal_distance: 220.0, c_angle_x: 0.0, c_angle_y: 0.0, camera_x: 0.0, camera_y: 0.0, camera_z: 0.0, ref_x: 0.0, ref_y: 0.0, ref_z: 0.0, perspective_factor: 0.0 };
@@ -72,11 +82,22 @@ async fn load_texture(pixels: &mut Vec<Pixel>, count: usize, view_state: ViewSta
     for i in 0..count {
         let pixel = &mut pixels[i];
 
-        let (rx, ry, rz) = Operations::rotate(view_state.angle_x.sin(), view_state.angle_y.sin(), view_state.angle_x.cos(), view_state.angle_y.cos(), pixel.x, pixel.y, pixel.z);
-        let (tx, ty) = Operations::project(view_state.scale, view_state.focal_distance, width, height, rx, ry, rz, view_state.perspective_factor);
+        let (rx, ry, rz) = Operations::rotate(
+            (pixel.x, pixel.y, pixel.z), 
+            (view_state.angle_x, view_state.angle_y, 0.0) 
+        );
+        let scale_factor = view_state.scale / (view_state.focal_distance + rz * view_state.perspective_factor);
+        let (tx, ty) = Operations::project(
+            (rx, ry, rz), 
+            scale_factor, 
+            view_state.camera_x, 
+            view_state.camera_y, 
+            width as f32, 
+            height as f32
+        );
 
-        if rz < 0.0 && img.in_bounds(tx - w_disposition, ty - h_disposition) {
-            let rgba = img.get_pixel(tx - w_disposition, ty - h_disposition);
+        if rz < 0.0 && img.in_bounds(tx as u32 - w_disposition, ty as u32 - h_disposition) {
+            let rgba = img.get_pixel(tx as u32 - w_disposition, ty as u32 - h_disposition);
             if rgba[3] != 0 {
                 pixel.r = rgba[0] as f32 / 255.0;
                 pixel.g = rgba[1] as f32 / 255.0;

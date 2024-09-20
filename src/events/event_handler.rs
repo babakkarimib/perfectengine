@@ -47,8 +47,6 @@ impl EventHandler {
                 } => return EventCallback::Resized(width as u32, height as u32),
                 Event::Quit { .. }
                 | Event::KeyDown { keycode: Some(Keycode::Escape), .. } => return EventCallback::Quit,
-                
-                // Folding KeyDown and KeyUp events into a single match
                 Event::KeyDown { keycode: Some(key), .. } | Event::KeyUp { keycode: Some(key), .. } => {
                     let pressed = matches!(event, Event::KeyDown { .. });
 
