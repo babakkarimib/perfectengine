@@ -87,7 +87,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
 
     let rotated_light = rotate(
         vec3<f32>(uniforms.light_x - (uniforms.camera_x / uniforms.camera_z), uniforms.light_y - (uniforms.camera_y / uniforms.camera_z), uniforms.light_z), 
-        vec3<f32>(uniforms.c_angle_x, uniforms.c_angle_y, 0.0));
+        vec3<f32>(uniforms.c_angle_x / uniforms.camera_z, uniforms.c_angle_y / uniforms.camera_z, 0.0 / uniforms.camera_z));
     let lit_color = apply_lighting(rotated_pixel, rotated_light, vec3<f32>(pixel.r, pixel.g, pixel.b));
     
     var rotated_position = rotate(

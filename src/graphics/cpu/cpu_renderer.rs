@@ -47,7 +47,7 @@ impl Renderer<'_> for CpuRenderer<'_> {
 
             let rotated_light = Operations::rotate(
                 (light.x - (view_state.camera_x / view_state.camera_z), light.y - (view_state.camera_y / view_state.camera_z), light.z),
-                (view_state.c_angle_x, view_state.c_angle_y, 0.0)
+                (view_state.c_angle_x / view_state.camera_z, view_state.c_angle_y / view_state.camera_z, 0.0)
             );
             let lit_color = Operations::apply_lighting(
                 rotated_pixel,
