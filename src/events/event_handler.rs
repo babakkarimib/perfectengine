@@ -43,13 +43,12 @@ impl EventHandler {
             match event {
                 Event::Window {
                     win_event: WindowEvent::SizeChanged(width, height),
-                    .. 
+                    ..
                 } => return EventCallback::Resized(width as u32, height as u32),
                 Event::Quit { .. }
                 | Event::KeyDown { keycode: Some(Keycode::Escape), .. } => return EventCallback::Quit,
                 Event::KeyDown { keycode: Some(key), .. } | Event::KeyUp { keycode: Some(key), .. } => {
                     let pressed = matches!(event, Event::KeyDown { .. });
-
                     match key {
                         Keycode::W => self.move_forward = pressed,
                         Keycode::S => self.move_backward = pressed,
@@ -90,8 +89,8 @@ impl EventHandler {
                     if self.drag {
                         let dx = x - self.last_x;
                         let dy = y - self.last_y;
-                        view_state.angle_x -= dy as f32 * 0.01;
-                        view_state.angle_y -= dx as f32 * 0.01;
+                        view_state.angle_x -= dy as f32 * 0.01 % 360.0;
+                        view_state.angle_y -= dx as f32 * 0.01 % 360.0;
                         self.last_x = x;
                         self.last_y = y;
                     }
@@ -106,14 +105,14 @@ impl EventHandler {
                     if self.m_drag {
                         let dx = x - self.last_x;
                         let dy = y - self.last_y;
-                        view_state.c_angle_x -= dy as f32 * 0.01;
-                        view_state.c_angle_y -= dx as f32 * 0.01;
+                        view_state.c_angle_x -= dy as f32 * 0.01 % 360.0;
+                        view_state.c_angle_y -= dx as f32 * 0.01 % 360.0;
                         self.last_x = x;
                         self.last_y = y;
                     }
                 },
                 Event::MouseWheel { y, .. } => {
-                    light.intensity += y as f32 * 0.1;
+                    light.intensity += y as f32 * 0.5;
                     if light.intensity < 0.0 {
                         light.intensity = 0.0;
                     }
