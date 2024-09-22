@@ -87,7 +87,9 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     var rotated_pixel = rotate(vec3<f32>(pixel.x, pixel.y, pixel.z), vec3<f32>(uniforms.angle_x, uniforms.angle_y, uniforms.angle_z));
     rotated_pixel -= vec3<f32>(uniforms.ref_x, uniforms.ref_y, uniforms.ref_z);
 
-    let light_distance = distance(vec3<f32>(uniforms.light_x, uniforms.light_y, uniforms.light_z), vec3<f32>(rotated_pixel.x, rotated_pixel.y, rotated_pixel.z));
+    let light_distance = distance(
+        vec3<f32>(uniforms.light_x, uniforms.light_y, uniforms.light_z),
+        vec3<f32>(uniforms.camera_x, uniforms.camera_y, uniforms.camera_z));
     let rotated_light = rotate(
         vec3<f32>(uniforms.light_x - (uniforms.camera_x / light_distance), uniforms.light_y - (uniforms.camera_y / light_distance), uniforms.light_z - (uniforms.camera_z / light_distance)), 
         vec3<f32>(uniforms.c_angle_x / light_distance, uniforms.c_angle_y / light_distance, uniforms.c_angle_z / light_distance));
