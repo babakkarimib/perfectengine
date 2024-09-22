@@ -5,8 +5,10 @@ use bytemuck::NoUninit;
 pub struct Uniforms {
     pub angle_x: f32,
     pub angle_y: f32,
+    pub angle_z: f32,
     pub c_angle_x: f32,
     pub c_angle_y: f32,
+    pub c_angle_z: f32,
     pub scale: f32,
     pub perspective_factor: f32,
     pub focal_distance: f32,

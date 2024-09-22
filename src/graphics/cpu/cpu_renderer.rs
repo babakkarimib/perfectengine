@@ -45,9 +45,10 @@ impl Renderer<'_> for CpuRenderer<'_> {
             rotated_pixel.1 -= view_state.ref_y;
             rotated_pixel.2 -= view_state.ref_z;
 
+            let light_distance = ((light.x - rotated_pixel.0).powi(2) + (light.y - rotated_pixel.1).powi(2) + (light.z - rotated_pixel.2).powi(2)).sqrt();
             let rotated_light = Operations::rotate(
-                (light.x - (view_state.camera_x / view_state.camera_z), light.y - (view_state.camera_y / view_state.camera_z), light.z),
-                (view_state.c_angle_x / view_state.camera_z, view_state.c_angle_y / view_state.camera_z, 0.0)
+                (light.x - (view_state.camera_x / light_distance), light.y - (view_state.camera_y / light_distance), light.z - (view_state.camera_z / light_distance)),
+                (view_state.c_angle_x / light_distance, view_state.c_angle_y / light_distance, 0.0 / light_distance)
             );
             let lit_color = Operations::apply_lighting(
                 rotated_pixel,

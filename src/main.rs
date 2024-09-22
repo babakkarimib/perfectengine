@@ -92,8 +92,10 @@ async fn main() {
     let mut view_state = ViewState { 
         angle_x: 0.0,
         angle_y: 0.0,
+        angle_z: 0.0,
         c_angle_x: 0.0,
         c_angle_y: 0.0,
+        c_angle_z: 0.0,
         camera_x: 0.0,
         camera_y: 0.0,
         camera_z: 250.0,

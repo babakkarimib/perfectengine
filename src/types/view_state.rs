@@ -1,8 +1,10 @@
 pub struct ViewState {
     pub angle_x: f32,
     pub angle_y: f32,
+    pub angle_z: f32,
     pub c_angle_x: f32,
     pub c_angle_y: f32,
+    pub c_angle_z: f32,
     pub camera_x: f32,
     pub camera_y: f32,
     pub camera_z: f32,

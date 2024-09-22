@@ -108,8 +108,10 @@ impl Renderer<'_> for GpuRenderer<'_> {
         let uniforms = Uniforms {
             angle_x: view_state.angle_x,
             angle_y: view_state.angle_y,
+            angle_z: view_state.angle_z,
             c_angle_x: view_state.c_angle_x,
             c_angle_y: view_state.c_angle_y,
+            c_angle_z: view_state.c_angle_z,
             scale: view_state.scale,
             perspective_factor: view_state.perspective_factor,
             focal_distance: view_state.focal_distance,
