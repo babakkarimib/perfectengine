@@ -39,7 +39,7 @@ impl Renderer<'_> for CpuRenderer<'_> {
         for pixel in &self.pixels {
             let mut rotated_pixel = Operations::rotate(
                 (pixel.x, pixel.y, pixel.z),
-                (view_state.angle_x, view_state.angle_y, 0.0)
+                (view_state.angle_x, view_state.angle_y, view_state.angle_z)
             );
             rotated_pixel.0 -= view_state.ref_x;
             rotated_pixel.1 -= view_state.ref_y;
@@ -48,7 +48,7 @@ impl Renderer<'_> for CpuRenderer<'_> {
             let light_distance = ((light.x - view_state.camera_x).powi(2) + (light.y - view_state.camera_y).powi(2) + (light.z - view_state.camera_z).powi(2)).sqrt();
             let rotated_light = Operations::rotate(
                 (light.x - (view_state.camera_x / light_distance), light.y - (view_state.camera_y / light_distance), light.z - (view_state.camera_z / light_distance)),
-                (view_state.c_angle_x / light_distance, view_state.c_angle_y / light_distance, 0.0 / light_distance)
+                (view_state.c_angle_x / light_distance, view_state.c_angle_y / light_distance, view_state.c_angle_z / light_distance)
             );
             let lit_color = Operations::apply_lighting(
                 rotated_pixel,
@@ -63,7 +63,7 @@ impl Renderer<'_> for CpuRenderer<'_> {
                     rotated_pixel.1, 
                     rotated_pixel.2 + view_state.focal_distance
                 ),
-                (view_state.c_angle_x, view_state.c_angle_y, 0.0)
+                (view_state.c_angle_x, view_state.c_angle_y, view_state.c_angle_z)
             );
             rotated_position.2 -= view_state.focal_distance;
 
