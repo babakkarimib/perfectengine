@@ -57,15 +57,16 @@ impl Renderer<'_> for CpuRenderer<'_> {
                 light.intensity
             );
 
+            let focal_distance = view_state.camera_z * view_state.focal_factor;
             let mut rotated_position = Operations::rotate(
                 (
                     rotated_pixel.0, 
                     rotated_pixel.1, 
-                    rotated_pixel.2 + view_state.focal_distance
+                    rotated_pixel.2 + focal_distance
                 ),
                 (view_state.c_angle_x, view_state.c_angle_y, view_state.c_angle_z)
             );
-            rotated_position.2 -= view_state.focal_distance;
+            rotated_position.2 -= focal_distance;
 
             let scale_factor = view_state.scale / (view_state.camera_z + rotated_position.2 * view_state.perspective_factor);
             let projected = Operations::project(

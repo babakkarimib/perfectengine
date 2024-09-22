@@ -60,10 +60,10 @@ pub async fn load_msh_file_with_texture() -> (Vec<Pixel>, usize) {
         }
     }
 
-    let view_state = ViewState { angle_x: 0.0, angle_y: 0.0, angle_z: 0.0, scale: 280.0, focal_distance: 220.0, c_angle_x: 0.0, c_angle_y: 0.0, c_angle_z: 0.0, camera_x: 0.0, camera_y: 0.0, camera_z: 0.0, ref_x: 0.0, ref_y: 0.0, ref_z: 0.0, perspective_factor: 0.0 };
+    let view_state = ViewState { angle_x: 0.0, angle_y: 0.0, angle_z: 0.0, scale: 280.0, focal_factor: 220.0, c_angle_x: 0.0, c_angle_y: 0.0, c_angle_z: 0.0, camera_x: 0.0, camera_y: 0.0, camera_z: 0.0, ref_x: 0.0, ref_y: 0.0, ref_z: 0.0, perspective_factor: 0.0 };
     load_texture(&mut pixels, count, view_state, width, height, "flower.png", 0, 40).await;
 
-    let view_state = ViewState { angle_x: 0.45, angle_y: 85.0, angle_z: 0.0, scale: 280.0, focal_distance: 220.0, c_angle_x: 0.0, c_angle_y: 0.0, c_angle_z: 0.0, camera_x: 0.0, camera_y: 0.0, camera_z: 0.0, ref_x: 0.0, ref_y: 0.0, ref_z: 0.0, perspective_factor: 0.0 };
+    let view_state = ViewState { angle_x: 0.45, angle_y: 85.0, angle_z: 0.0, scale: 280.0, focal_factor: 220.0, c_angle_x: 0.0, c_angle_y: 0.0, c_angle_z: 0.0, camera_x: 0.0, camera_y: 0.0, camera_z: 0.0, ref_x: 0.0, ref_y: 0.0, ref_z: 0.0, perspective_factor: 0.0 };
     load_texture(&mut pixels, count, view_state, width, height, "flower.png",0, 40).await;
 
     (pixels, count)
@@ -86,7 +86,7 @@ async fn load_texture(pixels: &mut Vec<Pixel>, count: usize, view_state: ViewSta
             (pixel.x, pixel.y, pixel.z), 
             (view_state.angle_x, view_state.angle_y, 0.0) 
         );
-        let scale_factor = view_state.scale / (view_state.focal_distance + rz * view_state.perspective_factor);
+        let scale_factor = view_state.scale / (view_state.focal_factor + rz * view_state.perspective_factor);
         let (tx, ty) = Operations::project(
             (rx, ry, rz), 
             scale_factor, 

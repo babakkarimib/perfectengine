@@ -18,7 +18,7 @@ struct Uniforms {
     c_angle_z: f32,
     scale: f32,
     perspective_factor: f32,
-    focal_distance: f32,
+    focal_factor: f32,
     canvas_width: f32,
     canvas_height: f32,
     light_x: f32,
@@ -95,10 +95,11 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         vec3<f32>(uniforms.c_angle_x / light_distance, uniforms.c_angle_y / light_distance, uniforms.c_angle_z / light_distance));
     let lit_color = apply_lighting(rotated_pixel, rotated_light, vec3<f32>(pixel.r, pixel.g, pixel.b));
     
+    let focal_distance = uniforms.camera_z * uniforms.focal_factor;
     var rotated_position = rotate(
-        vec3<f32>(rotated_pixel.x, rotated_pixel.y, rotated_pixel.z + uniforms.focal_distance), 
+        vec3<f32>(rotated_pixel.x, rotated_pixel.y, rotated_pixel.z + focal_distance), 
         vec3<f32>(uniforms.c_angle_x, uniforms.c_angle_y, uniforms.c_angle_z));
-    rotated_position.z -= uniforms.focal_distance;
+    rotated_position.z -= focal_distance;
 
     let scale_factor = uniforms.scale / (uniforms.camera_z + rotated_position.z * uniforms.perspective_factor);
 

@@ -102,7 +102,7 @@ async fn main() {
         ref_x: 0.0,
         ref_y: 0.0,
         ref_z: 0.0,
-        focal_distance: 500.0,
+        focal_factor: 2.0,
         scale: 250.0,
         perspective_factor: 0.3
     };
