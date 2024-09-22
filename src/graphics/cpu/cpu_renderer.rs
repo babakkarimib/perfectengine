@@ -41,9 +41,9 @@ impl Renderer<'_> for CpuRenderer<'_> {
                 (pixel.x, pixel.y, pixel.z),
                 (view_state.angle_x, view_state.angle_y, view_state.angle_z)
             );
-            rotated_pixel.0 -= view_state.ref_x;
-            rotated_pixel.1 -= view_state.ref_y;
-            rotated_pixel.2 -= view_state.ref_z;
+            rotated_pixel.0 += view_state.ref_x;
+            rotated_pixel.1 += view_state.ref_y;
+            rotated_pixel.2 += view_state.ref_z;
 
             let light_distance = ((light.x - view_state.camera_x).powi(2) + (light.y - view_state.camera_y).powi(2) + (light.z - view_state.camera_z).powi(2)).sqrt();
             let rotated_light = Operations::rotate(
