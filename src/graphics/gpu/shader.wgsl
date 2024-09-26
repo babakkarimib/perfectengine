@@ -109,11 +109,18 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     let px = i32(projected.x);
     let py = i32(projected.y);
     let block_size = i32(ceil(scale_factor * pixel.size_factor));
+    let canvas_width = i32(uniforms.canvas_width);
+    let canvas_height = i32(uniforms.canvas_height);
 
     for (var dx: i32 = 0; dx < block_size; dx++) {
         for (var dy: i32 = 0; dy < block_size; dy++) {
             let px_offset = px + dx;
             let py_offset = py + dy;
+
+            if (px_offset < 0 || px_offset >= canvas_width || py_offset < 0 || py_offset >= canvas_height) {
+                continue;
+            }
+
             let depth_index = py_offset * i32(uniforms.canvas_width) + px_offset;
             while (true) {
                 if (atomicCompareExchangeWeak(&lock[depth_index], 0u, 1u).exchanged) {

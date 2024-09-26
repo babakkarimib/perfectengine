@@ -79,9 +79,9 @@ impl Renderer<'_> for CpuRenderer<'_> {
             );
 
             let color = [lit_color.0, lit_color.1, lit_color.2, pixel.a];
-            let block_size = (scale_factor * pixel.size_factor).ceil() as u32;
+            let block_size = (scale_factor * pixel.size_factor).ceil() as i32;
 
-            Operations::draw_pixel(&mut pixel_data, &mut depth_buffer, self.canvas_width, self.canvas_height, projected.0 as u32, projected.1 as u32, color, block_size, rotated_position.2);
+            Operations::draw_pixel(&mut pixel_data, &mut depth_buffer, self.canvas_width as i32, self.canvas_height as i32, projected.0, projected.1, color, block_size, rotated_position.2);
         }
 
         self.texture.update(None, &pixel_data, (self.canvas_width * 4) as usize).unwrap();

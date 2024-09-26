@@ -40,42 +40,45 @@ impl Operations {
         (adjusted_r, adjusted_g, adjusted_b)
     }
     
-    pub fn project(v: (f32, f32, f32), scale_factor: f32, camera_x: f32, camera_y: f32, canvas_width: f32, canvas_height: f32) -> (f32, f32) {
+    pub fn project(v: (f32, f32, f32), scale_factor: f32, camera_x: f32, camera_y: f32, canvas_width: f32, canvas_height: f32) -> (i32, i32) {
         let (x, y, _) = v;
     
         let projected_x = (x + camera_x) * scale_factor + canvas_width / 2.0;
         let projected_y = -(y + camera_y) * scale_factor + canvas_height / 2.0;
     
-        (projected_x, projected_y)
+        (projected_x as i32, projected_y as i32)
     }
     
     pub fn draw_pixel(
         data: &mut [u8],
         depth_buffer: &mut [f32],
-        canvas_width: u32,
-        canvas_height: u32,
-        x: u32,
-        y: u32,
+        canvas_width: i32,
+        canvas_height: i32,
+        x: i32,
+        y: i32,
         color: [f32; 4],
-        block_size: u32,
+        block_size: i32,
         z: f32,
     ) {
         let color = [(color[0] * 255.0) as u8, (color[1] * 255.0) as u8, (color[2] * 255.0) as u8, (color[3] * 255.0) as u8];
         for dx in 0..block_size {
             for dy in 0..block_size {
-                let px = x + dx;
-                let py = y + dy;
-                if px < canvas_width && py < canvas_height {
-                    let index = ((py * canvas_width + px) * 4) as usize;
-                    let depth_index = (py * canvas_width + px) as usize;
-    
-                    if z < depth_buffer[depth_index] {
-                        depth_buffer[depth_index] = z;
-                        data[index] = color[3];
-                        data[index + 1] = color[2];
-                        data[index + 2] = color[1];
-                        data[index + 3] = color[0];
-                    }
+                let px_offset = x + dx;
+                let py_offset = y + dy;
+
+                if px_offset < 0 || px_offset >= canvas_width || py_offset < 0 || py_offset >= canvas_height {
+                    continue;
+                }
+
+                let index = ((py_offset * canvas_width + px_offset) * 4) as usize;
+                let depth_index = (py_offset * canvas_width + px_offset) as usize;
+
+                if z < depth_buffer[depth_index] {
+                    depth_buffer[depth_index] = z;
+                    data[index] = color[3];
+                    data[index + 1] = color[2];
+                    data[index + 2] = color[1];
+                    data[index + 3] = color[0];
                 }
             }
         }
