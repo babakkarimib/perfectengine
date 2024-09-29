@@ -12,7 +12,8 @@ pub struct GpuRenderer<'a> {
     render_pipeline: wgpu::RenderPipeline,
     pixels: Vec<Pixel>,
     canvas_width: f32,
-    canvas_height: f32
+    canvas_height: f32,
+    batch_size: usize,
 }
 
 impl GpuRenderer<'_> {
@@ -29,6 +30,7 @@ impl GpuRenderer<'_> {
             .unwrap();
 
         let (device, queue) = request_device(&adapter).await;
+        let batch_size = device.limits().max_compute_workgroups_per_dimension as usize;
 
         let (canvas_width, canvas_height) = window.drawable_size();
         let surface_config = SurfaceConfiguration {
@@ -96,15 +98,14 @@ impl GpuRenderer<'_> {
             render_pipeline,
             pixels: Vec::new(),
             canvas_width: canvas_width as f32,
-            canvas_height: canvas_height as f32
+            canvas_height: canvas_height as f32,
+            batch_size
         }
     }
 }
 
 impl Renderer<'_> for GpuRenderer<'_> {
     fn render(&mut self, view_state: &ViewState, light: &Light) {
-        const BATCH_SIZE: usize = 65535;
-
         let uniforms = Uniforms {
             angle_x: view_state.angle_x,
             angle_y: view_state.angle_y,
@@ -129,10 +130,11 @@ impl Renderer<'_> for GpuRenderer<'_> {
             ref_z: view_state.ref_z,
         };
 
+        let buffer_size = (self.canvas_width * self.canvas_height) as usize;
         let uniform_buffer = create_uniform_buffer(&self.device, uniforms);
-        let depth_buffer = create_depth_buffer(&self.device, (self.canvas_width * self.canvas_height) as usize);
-        let depth_check_buffer = create_depth_check_buffer(&self.device, (self.canvas_width * self.canvas_height) as usize);
-        let lock_buffer = create_lock_buffer(&self.device, (self.canvas_width * self.canvas_height) as usize);
+        let depth_buffer = create_depth_buffer(&self.device, buffer_size);
+        let depth_check_buffer = create_depth_check_buffer(&self.device, buffer_size);
+        let lock_buffer = create_lock_buffer(&self.device, buffer_size);
 
         let frame = self
             .surface
@@ -140,10 +142,10 @@ impl Renderer<'_> for GpuRenderer<'_> {
             .expect("Failed to acquire next swap chain texture");
         let view = frame.texture.create_view(&wgpu::TextureViewDescriptor::default());
 
-        let num_batches = (self.pixels.len() + BATCH_SIZE - 1) / BATCH_SIZE;
+        let num_batches = (self.pixels.len() + self.batch_size - 1) / self.batch_size;
         for batch_index in 0..num_batches {
-            let start = batch_index * BATCH_SIZE;
-            let end = std::cmp::min(start + BATCH_SIZE, self.pixels.len());
+            let start = batch_index * self.batch_size;
+            let end = std::cmp::min(start + self.batch_size, self.pixels.len());
             let pixel_batch = &self.pixels[start..end];
             let pixel_buffer =
                 create_pixel_buffer(&self.device, pixel_batch.len() * std::mem::size_of::<Pixel>());
