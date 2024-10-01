@@ -16,6 +16,7 @@ use events::event_handler::EventHandler;
 
 const DEFAULT_WIDTH: u32 = 800;
 const DEFAULT_HEIGHT: u32 = 600;
+const Z_OFFSET: f32 = 0.02;
 
 const FPS: u32 = 60;
 const FRAME_DURATION: Duration = Duration::from_millis(1000 / FPS as u64);
@@ -76,11 +77,11 @@ async fn main() {
 
     let texture_creator;
     let mut renderer: Box<dyn Renderer<'static>> = if gpu_enabled {
-        Box::new(GpuRenderer::new(&window).await)
+        Box::new(GpuRenderer::new(&window, Z_OFFSET).await)
     } else {
         let canvas = window.into_canvas().present_vsync().build().unwrap();
         texture_creator = canvas.texture_creator();
-        Box::new(CpuRenderer::new(canvas, &texture_creator))
+        Box::new(CpuRenderer::new(canvas, &texture_creator, Z_OFFSET))
     };
 
     let (pixels, pixel_count) = model_helper::load_msh_file_with_texture().await;

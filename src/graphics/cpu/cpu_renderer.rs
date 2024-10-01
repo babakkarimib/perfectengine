@@ -8,13 +8,15 @@ pub struct CpuRenderer<'a> {
     texture: sdl2::render::Texture<'a>,
     pixels: Vec<Pixel>,
     canvas_width: u32,
-    canvas_height: u32
+    canvas_height: u32,
+    z_offset: f32,
 }
 
 impl CpuRenderer<'_> {
     pub fn new<'a>(
         canvas: sdl2::render::Canvas<sdl2::video::Window>,
         texture_creator: &'a TextureCreator<WindowContext>,
+        z_offset: f32,
     ) -> CpuRenderer<'a> {
         let (canvas_width, canvas_height) = canvas.output_size().unwrap();
         let texture = texture_creator
@@ -26,7 +28,8 @@ impl CpuRenderer<'_> {
             texture,
             pixels: Vec::new(),
             canvas_width,
-            canvas_height
+            canvas_height,
+            z_offset
         }
     }
 }
@@ -57,7 +60,7 @@ impl Renderer<'_> for CpuRenderer<'_> {
             rotated_position.2 -= focal_distance;
 
             let depth_value = view_state.camera_z + rotated_position.2 / view_state.perspective_distance;
-            if depth_value <= 0.05 { continue; }
+            if depth_value <= self.z_offset { continue; }
             let scale_factor = view_state.scale / depth_value;
 
             let light_distance = ((light.x - view_state.camera_x).powi(2) + (light.y - view_state.camera_y).powi(2) + (light.z - view_state.camera_z).powi(2)).sqrt();

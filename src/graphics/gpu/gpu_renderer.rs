@@ -14,10 +14,11 @@ pub struct GpuRenderer<'a> {
     canvas_width: f32,
     canvas_height: f32,
     batch_size: usize,
+    z_offset: f32,
 }
 
 impl GpuRenderer<'_> {
-    pub async fn new(window: &Window) -> GpuRenderer<'static> {
+    pub async fn new(window: &Window, z_offset: f32) -> GpuRenderer<'static> {
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
         let surface = unsafe { instance.create_surface_unsafe(SurfaceTargetUnsafe::from_window(window).unwrap()).unwrap() };
         let adapter = instance
@@ -99,7 +100,8 @@ impl GpuRenderer<'_> {
             pixels: Vec::new(),
             canvas_width: canvas_width as f32,
             canvas_height: canvas_height as f32,
-            batch_size
+            batch_size,
+            z_offset
         }
     }
 }
@@ -128,6 +130,7 @@ impl Renderer<'_> for GpuRenderer<'_> {
             ref_x: view_state.ref_x,
             ref_y: view_state.ref_y,
             ref_z: view_state.ref_z,
+            z_offset: self.z_offset
         };
 
         let buffer_size = (self.canvas_width * self.canvas_height) as usize;

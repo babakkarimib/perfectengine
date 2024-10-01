@@ -31,6 +31,7 @@ struct Uniforms {
     ref_x: f32,
     ref_y: f32,
     ref_z: f32,
+    z_offset: f32,
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -94,7 +95,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     rotated_position.z -= focal_distance;
 
     let depth_value = uniforms.camera_z + rotated_position.z / uniforms.perspective_distance;
-    if (depth_value <= 0.05) { return; }
+    if (depth_value <= uniforms.z_offset) { return; }
     let scale_factor = uniforms.scale / depth_value;
 
     let light_distance = distance(
