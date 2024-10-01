@@ -45,6 +45,21 @@ impl Renderer<'_> for CpuRenderer<'_> {
             rotated_pixel.1 += view_state.ref_y;
             rotated_pixel.2 += view_state.ref_z;
 
+            let focal_distance = view_state.camera_z * view_state.focal_factor;
+            let mut rotated_position = Operations::rotate(
+                (
+                    rotated_pixel.0, 
+                    rotated_pixel.1, 
+                    rotated_pixel.2 + focal_distance
+                ),
+                (view_state.c_angle_x, view_state.c_angle_y, view_state.c_angle_z)
+            );
+            rotated_position.2 -= focal_distance;
+
+            let depth_value = view_state.camera_z + rotated_position.2 / view_state.perspective_distance;
+            if depth_value <= 0.05 { continue; }
+            let scale_factor = view_state.scale / depth_value;
+
             let light_distance = ((light.x - view_state.camera_x).powi(2) + (light.y - view_state.camera_y).powi(2) + (light.z - view_state.camera_z).powi(2)).sqrt();
             let rotated_light = Operations::rotate(
                 (light.x - (view_state.camera_x / light_distance), light.y - (view_state.camera_y / light_distance), light.z - (view_state.camera_z / light_distance)),
@@ -57,18 +72,6 @@ impl Renderer<'_> for CpuRenderer<'_> {
                 light.intensity
             );
 
-            let focal_distance = view_state.camera_z * view_state.focal_factor;
-            let mut rotated_position = Operations::rotate(
-                (
-                    rotated_pixel.0, 
-                    rotated_pixel.1, 
-                    rotated_pixel.2 + focal_distance
-                ),
-                (view_state.c_angle_x, view_state.c_angle_y, view_state.c_angle_z)
-            );
-            rotated_position.2 -= focal_distance;
-
-            let scale_factor = view_state.scale / (view_state.camera_z + rotated_position.2 * view_state.perspective_factor);
             let projected = Operations::project(
                 rotated_position,
                 scale_factor, 

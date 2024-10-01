@@ -98,19 +98,19 @@ async fn main() {
         c_angle_z: 0.0,
         camera_x: 0.0,
         camera_y: 0.0,
-        camera_z: 250.0,
+        camera_z: 1.0,
         ref_x: 0.0,
         ref_y: 0.0,
         ref_z: 0.0,
-        focal_factor: 2.0,
-        scale: 250.0,
-        perspective_factor: 0.3
+        focal_factor: 500.0,
+        scale: 1.0,
+        perspective_distance: 600.0,
     };
     let mut light = Light {
         x: 20.0,
         y: 0.0,
-        z: -110.0,
-        intensity: 40.0,
+        z: 20.0,
+        intensity: 100.0,
     };
 
     println!("\nFULLSCREEN:   {}\t\tWIDTH: {}\t\tHEIGHT: {}", fullscreen, width, height);

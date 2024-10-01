@@ -17,7 +17,7 @@ struct Uniforms {
     c_angle_y: f32,
     c_angle_z: f32,
     scale: f32,
-    perspective_factor: f32,
+    perspective_distance: f32,
     focal_factor: f32,
     canvas_width: f32,
     canvas_height: f32,
@@ -87,6 +87,16 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     var rotated_pixel = rotate(vec3<f32>(pixel.x, pixel.y, pixel.z), vec3<f32>(uniforms.angle_x, uniforms.angle_y, uniforms.angle_z));
     rotated_pixel += vec3<f32>(uniforms.ref_x, uniforms.ref_y, uniforms.ref_z);
 
+    let focal_distance = uniforms.camera_z * uniforms.focal_factor;
+    var rotated_position = rotate(
+        vec3<f32>(rotated_pixel.x, rotated_pixel.y, rotated_pixel.z + focal_distance), 
+        vec3<f32>(uniforms.c_angle_x, uniforms.c_angle_y, uniforms.c_angle_z));
+    rotated_position.z -= focal_distance;
+
+    let depth_value = uniforms.camera_z + rotated_position.z / uniforms.perspective_distance;
+    if (depth_value <= 0.05) { return; }
+    let scale_factor = uniforms.scale / depth_value;
+
     let light_distance = distance(
         vec3<f32>(uniforms.light_x, uniforms.light_y, uniforms.light_z),
         vec3<f32>(uniforms.camera_x, uniforms.camera_y, uniforms.camera_z));
@@ -94,23 +104,16 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         vec3<f32>(uniforms.light_x - (uniforms.camera_x / light_distance), uniforms.light_y - (uniforms.camera_y / light_distance), uniforms.light_z - (uniforms.camera_z / light_distance)), 
         vec3<f32>(uniforms.c_angle_x / light_distance, uniforms.c_angle_y / light_distance, uniforms.c_angle_z / light_distance));
     let lit_color = apply_lighting(rotated_pixel, rotated_light, vec3<f32>(pixel.r, pixel.g, pixel.b));
-    
-    let focal_distance = uniforms.camera_z * uniforms.focal_factor;
-    var rotated_position = rotate(
-        vec3<f32>(rotated_pixel.x, rotated_pixel.y, rotated_pixel.z + focal_distance), 
-        vec3<f32>(uniforms.c_angle_x, uniforms.c_angle_y, uniforms.c_angle_z));
-    rotated_position.z -= focal_distance;
-
-    let scale_factor = uniforms.scale / (uniforms.camera_z + rotated_position.z * uniforms.perspective_factor);
 
     let projected = project(rotated_position, scale_factor);
 
-    let color = vec4<f32>(lit_color, pixel.a);
     let px = i32(projected.x);
     let py = i32(projected.y);
-    let block_size = i32(ceil(scale_factor * pixel.size_factor));
     let canvas_width = i32(uniforms.canvas_width);
     let canvas_height = i32(uniforms.canvas_height);
+
+    let color = vec4<f32>(lit_color, pixel.a);
+    let block_size = i32(ceil(scale_factor * pixel.size_factor));
 
     for (var dx: i32 = 0; dx < block_size; dx++) {
         for (var dy: i32 = 0; dy < block_size; dy++) {
