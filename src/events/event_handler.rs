@@ -89,8 +89,8 @@ impl EventHandler {
                     if self.drag {
                         let dx = x - self.last_x;
                         let dy = y - self.last_y;
-                        view_state.angle_x -= dy as f32 * 0.01 % 360.0;
-                        view_state.angle_y -= dx as f32 * 0.01 % 360.0;
+                        view_state.angle_x += dy as f32 * 0.01 % 360.0;
+                        view_state.angle_y += dx as f32 * 0.01 % 360.0;
                         self.last_x = x;
                         self.last_y = y;
                     }

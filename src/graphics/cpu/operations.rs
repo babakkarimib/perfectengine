@@ -40,11 +40,11 @@ impl Operations {
         (adjusted_r, adjusted_g, adjusted_b)
     }
     
-    pub fn project(v: (f32, f32, f32), scale_factor: f32, camera_x: f32, camera_y: f32, canvas_width: f32, canvas_height: f32) -> (i32, i32) {
+    pub fn project(v: (f32, f32, f32), scale_factor: f32, canvas_width: f32, canvas_height: f32) -> (i32, i32) {
         let (x, y, _) = v;
     
-        let projected_x = (x + camera_x) * scale_factor + canvas_width / 2.0;
-        let projected_y = -(y + camera_y) * scale_factor + canvas_height / 2.0;
+        let projected_x = x * scale_factor + canvas_width / 2.0;
+        let projected_y = -y * scale_factor + canvas_height / 2.0;
     
         (projected_x as i32, projected_y as i32)
     }
@@ -73,7 +73,7 @@ impl Operations {
                 let index = ((py_offset * canvas_width + px_offset) * 4) as usize;
                 let depth_index = (py_offset * canvas_width + px_offset) as usize;
 
-                if z < depth_buffer[depth_index] {
+                if z > depth_buffer[depth_index] {
                     depth_buffer[depth_index] = z;
                     data[index] = color[3];
                     data[index + 1] = color[2];

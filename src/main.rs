@@ -108,10 +108,10 @@ async fn main() {
         perspective_distance: 600.0,
     };
     let mut light = Light {
-        x: 20.0,
+        x: 0.0,
         y: 0.0,
-        z: 20.0,
-        intensity: 100.0,
+        z: 80.0,
+        intensity: 30.0,
     };
 
     println!("\nFULLSCREEN:   {}\t\tWIDTH: {}\t\tHEIGHT: {}", fullscreen, width, height);

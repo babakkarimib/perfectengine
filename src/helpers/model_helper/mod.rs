@@ -37,8 +37,7 @@ pub async fn load_msh_file_with_texture() -> (Vec<Pixel>, usize) {
                 let scale_factor = 280.0 / (220.0 + rz * 0.0);
                 let (tx, ty) = Operations::project(
                     (rx, ry, rz), 
-                    scale_factor, 
-                    0.0, 0.0,
+                    scale_factor,
                     width as f32, 
                     height as f32
                 );
@@ -89,9 +88,7 @@ async fn load_texture(pixels: &mut Vec<Pixel>, count: usize, view_state: ViewSta
         let scale_factor = view_state.scale / (view_state.focal_factor + rz * view_state.perspective_distance);
         let (tx, ty) = Operations::project(
             (rx, ry, rz), 
-            scale_factor, 
-            view_state.camera_x, 
-            view_state.camera_y, 
+            scale_factor,
             width as f32, 
             height as f32
         );

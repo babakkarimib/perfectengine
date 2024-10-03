@@ -37,7 +37,7 @@ impl CpuRenderer<'_> {
 impl Renderer<'_> for CpuRenderer<'_> {
     fn render(&mut self, view_state: &ViewState, light: &Light) {
         let mut pixel_data: Vec<u8> = vec![0; (self.canvas_width * self.canvas_height * 4) as usize];
-        let mut depth_buffer = vec![f32::INFINITY; (self.canvas_width * self.canvas_height) as usize];
+        let mut depth_buffer = vec![-f32::INFINITY; (self.canvas_width * self.canvas_height) as usize];
 
         for pixel in &self.pixels {
             let mut rotated_pixel = Operations::rotate(
@@ -53,13 +53,15 @@ impl Renderer<'_> for CpuRenderer<'_> {
                 (
                     rotated_pixel.0, 
                     rotated_pixel.1, 
-                    rotated_pixel.2 + focal_distance
+                    rotated_pixel.2 - focal_distance
                 ),
-                (view_state.c_angle_x, view_state.c_angle_y, view_state.c_angle_z)
+                (-view_state.c_angle_x, -view_state.c_angle_y, -view_state.c_angle_z)
             );
-            rotated_position.2 -= focal_distance;
+            rotated_position.0 += view_state.camera_x;
+            rotated_position.1 += view_state.camera_y;
+            rotated_position.2 += focal_distance;
 
-            let depth_value = view_state.camera_z + rotated_position.2 / view_state.perspective_distance;
+            let depth_value = view_state.camera_z - rotated_position.2 / view_state.perspective_distance;
             if depth_value <= self.z_offset { continue; }
             let scale_factor = view_state.scale / depth_value;
 
@@ -77,9 +79,7 @@ impl Renderer<'_> for CpuRenderer<'_> {
 
             let projected = Operations::project(
                 rotated_position,
-                scale_factor, 
-                view_state.camera_x, 
-                view_state.camera_y, 
+                scale_factor,
                 self.canvas_width as f32, 
                 self.canvas_height as f32
             );

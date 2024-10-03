@@ -75,8 +75,8 @@ fn apply_lighting(
 
 fn project(v: vec3<f32>, scale_factor: f32) -> vec2<f32> {
     return vec2<f32>(
-        (v.x + uniforms.camera_x) * scale_factor + uniforms.canvas_width / 2.0,
-        -(v.y + uniforms.camera_y) * scale_factor + uniforms.canvas_height / 2.0
+        v.x * scale_factor + uniforms.canvas_width / 2.0,
+        -v.y * scale_factor + uniforms.canvas_height / 2.0
     );
 }
 
@@ -90,11 +90,11 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
 
     let focal_distance = uniforms.camera_z * uniforms.focal_factor;
     var rotated_position = rotate(
-        vec3<f32>(rotated_pixel.x, rotated_pixel.y, rotated_pixel.z + focal_distance), 
-        vec3<f32>(uniforms.c_angle_x, uniforms.c_angle_y, uniforms.c_angle_z));
-    rotated_position.z -= focal_distance;
+        vec3<f32>(rotated_pixel.x, rotated_pixel.y, rotated_pixel.z - focal_distance), 
+        vec3<f32>(-uniforms.c_angle_x, -uniforms.c_angle_y, -uniforms.c_angle_z));
+    rotated_position += vec3<f32>(uniforms.camera_x, uniforms.camera_y, focal_distance);
 
-    let depth_value = uniforms.camera_z + rotated_position.z / uniforms.perspective_distance;
+    let depth_value = uniforms.camera_z - rotated_position.z / uniforms.perspective_distance;
     if (depth_value <= uniforms.z_offset) { return; }
     let scale_factor = uniforms.scale / depth_value;
 
@@ -102,7 +102,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         vec3<f32>(uniforms.light_x, uniforms.light_y, uniforms.light_z),
         vec3<f32>(uniforms.camera_x, uniforms.camera_y, uniforms.camera_z));
     let rotated_light = rotate(
-        vec3<f32>(uniforms.light_x - (uniforms.camera_x / light_distance), uniforms.light_y - (uniforms.camera_y / light_distance), uniforms.light_z - (uniforms.camera_z / light_distance)), 
+        vec3<f32>(uniforms.light_x - (uniforms.camera_x / light_distance), uniforms.light_y - (uniforms.camera_y / light_distance), uniforms.light_z + (uniforms.camera_z / light_distance)), 
         vec3<f32>(uniforms.c_angle_x / light_distance, uniforms.c_angle_y / light_distance, uniforms.c_angle_z / light_distance));
     let lit_color = apply_lighting(rotated_pixel, rotated_light, vec3<f32>(pixel.r, pixel.g, pixel.b));
 
@@ -128,7 +128,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
             let depth_index = py_offset * i32(uniforms.canvas_width) + px_offset;
             while (true) {
                 if (atomicCompareExchangeWeak(&lock[depth_index], 0u, 1u).exchanged) {
-                    if (rotated_position.z < depth_buffer[depth_index] || depth_check_buffer[depth_index] == 0u) {
+                    if (rotated_position.z > depth_buffer[depth_index] || depth_check_buffer[depth_index] == 0u) {
                         depth_check_buffer[depth_index] = 1u;
                         depth_buffer[depth_index] = rotated_position.z;
                         textureStore(img, vec2<i32>(px_offset, py_offset), color);
@@ -136,7 +136,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
                     atomicStore(&lock[depth_index], 0u);
                     break;
                 }
-                if (rotated_position.z >= depth_buffer[depth_index] && depth_check_buffer[depth_index] == 1u) {
+                if (rotated_position.z <= depth_buffer[depth_index] && depth_check_buffer[depth_index] == 1u) {
                     break;
                 }
             }
