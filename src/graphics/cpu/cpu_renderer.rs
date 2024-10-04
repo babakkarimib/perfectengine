@@ -61,13 +61,14 @@ impl Renderer<'_> for CpuRenderer<'_> {
             rotated_position.1 += view_state.camera_y;
             rotated_position.2 += focal_distance;
 
-            let depth_value = view_state.camera_z - rotated_position.2 / view_state.perspective_distance;
+            let depth_value = 
+                view_state.camera_z - if view_state.perspective_distance <= 0.0 { 0.0 } else { rotated_position.2 / view_state.perspective_distance };
             if depth_value <= self.z_offset { continue; }
             let scale_factor = view_state.scale / depth_value;
 
             let light_distance = ((light.x - view_state.camera_x).powi(2) + (light.y - view_state.camera_y).powi(2) + (light.z - view_state.camera_z).powi(2)).sqrt();
             let rotated_light = Operations::rotate(
-                (light.x - (view_state.camera_x / light_distance), light.y - (view_state.camera_y / light_distance), light.z - (view_state.camera_z / light_distance)),
+                (light.x - (view_state.camera_x / light_distance), light.y - (view_state.camera_y / light_distance), light.z + (view_state.camera_z / light_distance)),
                 (view_state.c_angle_x / light_distance, view_state.c_angle_y / light_distance, view_state.c_angle_z / light_distance)
             );
             let lit_color = Operations::apply_lighting(

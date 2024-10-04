@@ -94,7 +94,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         vec3<f32>(-uniforms.c_angle_x, -uniforms.c_angle_y, -uniforms.c_angle_z));
     rotated_position += vec3<f32>(uniforms.camera_x, uniforms.camera_y, focal_distance);
 
-    let depth_value = uniforms.camera_z - rotated_position.z / uniforms.perspective_distance;
+    let depth_value = uniforms.camera_z - select(rotated_position.z / uniforms.perspective_distance, 0.0, uniforms.perspective_distance <= 0.0);
     if (depth_value <= uniforms.z_offset) { return; }
     let scale_factor = uniforms.scale / depth_value;
 
