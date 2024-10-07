@@ -9,14 +9,12 @@ pub struct CpuRenderer<'a> {
     pixels: Vec<Pixel>,
     canvas_width: u32,
     canvas_height: u32,
-    z_offset: f32,
 }
 
 impl CpuRenderer<'_> {
     pub fn new<'a>(
         canvas: sdl2::render::Canvas<sdl2::video::Window>,
         texture_creator: &'a TextureCreator<WindowContext>,
-        z_offset: f32,
     ) -> CpuRenderer<'a> {
         let (canvas_width, canvas_height) = canvas.output_size().unwrap();
         let texture = texture_creator
@@ -29,7 +27,6 @@ impl CpuRenderer<'_> {
             pixels: Vec::new(),
             canvas_width,
             canvas_height,
-            z_offset
         }
     }
 }
@@ -48,33 +45,25 @@ impl Renderer<'_> for CpuRenderer<'_> {
             rotated_pixel.1 += view_state.ref_y;
             rotated_pixel.2 += view_state.ref_z;
 
-            let focal_distance = view_state.camera_z * view_state.focal_factor;
             let mut rotated_position = Operations::rotate(
                 (
                     rotated_pixel.0, 
                     rotated_pixel.1, 
-                    rotated_pixel.2 - focal_distance
+                    rotated_pixel.2 - view_state.camera_z
                 ),
                 (-view_state.c_angle_x, -view_state.c_angle_y, -view_state.c_angle_z)
             );
             rotated_position.0 += view_state.camera_x;
             rotated_position.1 += view_state.camera_y;
-            rotated_position.2 += focal_distance;
+            rotated_position.2 += view_state.camera_z;
 
-            let depth_value = 
-                view_state.camera_z - if view_state.perspective_distance <= 0.0 { 0.0 } else { rotated_position.2 / view_state.perspective_distance };
-            if depth_value <= self.z_offset { continue; }
-            let scale_factor = view_state.scale / depth_value;
+            let scale_factor = view_state.scale / (view_state.camera_z - rotated_position.2);
+            if scale_factor > view_state.camera_z - rotated_position.2 { continue; }
 
-            let light_distance = ((light.x - view_state.camera_x).powi(2) + (light.y - view_state.camera_y).powi(2) + (light.z - view_state.camera_z).powi(2)).sqrt();
-            let rotated_light = Operations::rotate(
-                (light.x - (view_state.camera_x / light_distance), light.y - (view_state.camera_y / light_distance), light.z + (view_state.camera_z / light_distance)),
-                (view_state.c_angle_x / light_distance, view_state.c_angle_y / light_distance, view_state.c_angle_z / light_distance)
-            );
             let lit_color = Operations::apply_lighting(
-                rotated_pixel,
+                rotated_position,
                 (pixel.r, pixel.g, pixel.b), 
-                rotated_light, 
+                (light.x, light.y, light.z), 
                 light.intensity
             );
 

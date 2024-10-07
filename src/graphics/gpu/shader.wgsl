@@ -17,8 +17,6 @@ struct Uniforms {
     c_angle_y: f32,
     c_angle_z: f32,
     scale: f32,
-    perspective_distance: f32,
-    focal_factor: f32,
     canvas_width: f32,
     canvas_height: f32,
     light_x: f32,
@@ -85,26 +83,23 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     let index = id.x;
     let pixel = pixels[index];
 
-    var rotated_pixel = rotate(vec3<f32>(pixel.x, pixel.y, pixel.z), vec3<f32>(uniforms.angle_x, uniforms.angle_y, uniforms.angle_z));
+    var rotated_pixel = rotate(
+        vec3<f32>(pixel.x, pixel.y, pixel.z),
+        vec3<f32>(uniforms.angle_x, uniforms.angle_y, uniforms.angle_z));
     rotated_pixel += vec3<f32>(uniforms.ref_x, uniforms.ref_y, uniforms.ref_z);
 
-    let focal_distance = uniforms.camera_z * uniforms.focal_factor;
     var rotated_position = rotate(
-        vec3<f32>(rotated_pixel.x, rotated_pixel.y, rotated_pixel.z - focal_distance), 
+        vec3<f32>(rotated_pixel.x, rotated_pixel.y, rotated_pixel.z - uniforms.camera_z), 
         vec3<f32>(-uniforms.c_angle_x, -uniforms.c_angle_y, -uniforms.c_angle_z));
-    rotated_position += vec3<f32>(uniforms.camera_x, uniforms.camera_y, focal_distance);
+    rotated_position += vec3<f32>(uniforms.camera_x, uniforms.camera_y, uniforms.camera_z);
 
-    let depth_value = uniforms.camera_z - select(rotated_position.z / uniforms.perspective_distance, 0.0, uniforms.perspective_distance <= 0.0);
-    if (depth_value <= uniforms.z_offset) { return; }
-    let scale_factor = uniforms.scale / depth_value;
+    let scale_factor = uniforms.scale / (uniforms.camera_z - rotated_position.z);
+     if (scale_factor > (uniforms.camera_z - rotated_position.z)) { return; }
 
-    let light_distance = distance(
+    let lit_color = apply_lighting(
+        rotated_position,
         vec3<f32>(uniforms.light_x, uniforms.light_y, uniforms.light_z),
-        vec3<f32>(uniforms.camera_x, uniforms.camera_y, uniforms.camera_z));
-    let rotated_light = rotate(
-        vec3<f32>(uniforms.light_x - (uniforms.camera_x / light_distance), uniforms.light_y - (uniforms.camera_y / light_distance), uniforms.light_z + (uniforms.camera_z / light_distance)), 
-        vec3<f32>(uniforms.c_angle_x / light_distance, uniforms.c_angle_y / light_distance, uniforms.c_angle_z / light_distance));
-    let lit_color = apply_lighting(rotated_pixel, rotated_light, vec3<f32>(pixel.r, pixel.g, pixel.b));
+        vec3<f32>(pixel.r, pixel.g, pixel.b));
 
     let projected = project(rotated_position, scale_factor);
 
