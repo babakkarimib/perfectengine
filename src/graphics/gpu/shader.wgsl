@@ -29,7 +29,6 @@ struct Uniforms {
     ref_x: f32,
     ref_y: f32,
     ref_z: f32,
-    z_offset: f32,
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -93,11 +92,12 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         vec3<f32>(-uniforms.c_angle_x, -uniforms.c_angle_y, -uniforms.c_angle_z));
     rotated_position += vec3<f32>(uniforms.camera_x, uniforms.camera_y, uniforms.camera_z);
 
-    let scale_factor = uniforms.scale / (uniforms.camera_z - rotated_position.z);
-     if (scale_factor > (uniforms.camera_z - rotated_position.z)) { return; }
+    let distance_z = uniforms.camera_z - rotated_position.z;
+    let scale_factor = uniforms.scale / distance_z;
+    if (scale_factor > distance_z) { return; }
 
     let lit_color = apply_lighting(
-        rotated_position,
+        rotated_pixel + vec3<f32>(uniforms.camera_x, uniforms.camera_y, scale_factor),
         vec3<f32>(uniforms.light_x, uniforms.light_y, uniforms.light_z),
         vec3<f32>(pixel.r, pixel.g, pixel.b));
 
