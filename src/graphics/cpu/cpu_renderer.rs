@@ -57,12 +57,13 @@ impl Renderer<'_> for CpuRenderer<'_> {
             rotated_position.1 += view_state.camera_y;
             rotated_position.2 += view_state.camera_z;
 
+            let aspect_ratio = std::cmp::max(self.canvas_width, self.canvas_height) as f32 / std::cmp::min(self.canvas_width, self.canvas_height) as f32;
             let distance_z = view_state.camera_z - rotated_position.2;
-            let scale_factor = view_state.scale / distance_z;
+            let scale_factor = view_state.scale / distance_z * aspect_ratio.powf(2.0);
             if scale_factor > distance_z { continue; }
 
             let lit_color = Operations::apply_lighting(
-                (rotated_pixel.0 + view_state.camera_x, rotated_pixel.1 + view_state.camera_y, rotated_pixel.2 + scale_factor),
+                rotated_pixel,
                 (pixel.r, pixel.g, pixel.b), 
                 (light.x, light.y, light.z), 
                 light.intensity

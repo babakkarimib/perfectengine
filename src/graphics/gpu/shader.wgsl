@@ -92,12 +92,13 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         vec3<f32>(-uniforms.c_angle_x, -uniforms.c_angle_y, -uniforms.c_angle_z));
     rotated_position += vec3<f32>(uniforms.camera_x, uniforms.camera_y, uniforms.camera_z);
 
+    let aspect_ratio = max(uniforms.canvas_height, uniforms.canvas_width) / min(uniforms.canvas_height, uniforms.canvas_width);
     let distance_z = uniforms.camera_z - rotated_position.z;
-    let scale_factor = uniforms.scale / distance_z;
+    let scale_factor = uniforms.scale / distance_z * pow(aspect_ratio, 2.0);
     if (scale_factor > distance_z) { return; }
 
     let lit_color = apply_lighting(
-        rotated_pixel + vec3<f32>(uniforms.camera_x, uniforms.camera_y, scale_factor),
+        rotated_pixel,
         vec3<f32>(uniforms.light_x, uniforms.light_y, uniforms.light_z),
         vec3<f32>(pixel.r, pixel.g, pixel.b));
 
@@ -120,7 +121,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
                 continue;
             }
 
-            let depth_index = py_offset * i32(uniforms.canvas_width) + px_offset;
+            let depth_index = py_offset * canvas_width + px_offset;
             while (true) {
                 if (atomicCompareExchangeWeak(&lock[depth_index], 0u, 1u).exchanged) {
                     if (rotated_position.z > depth_buffer[depth_index] || depth_check_buffer[depth_index] == 0u) {

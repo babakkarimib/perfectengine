@@ -33,14 +33,14 @@ pub fn generate_cube_pixels(iters: usize, size: f32) -> (Vec<Pixel>, usize) {
                 let color = colors[(i + j + k) % colors.len()];
 
                 pixels.push(Pixel {
-                    x: pos_x * 20.0,
-                    y: pos_y * 20.0,
-                    z: pos_z * 20.0 + 120.0,
+                    x: pos_x,
+                    y: pos_y,
+                    z: pos_z,
                     r: color[0],
                     g: color[1],
                     b: color[2],
                     a: color[3],
-                    size_factor: step_size * 20.0,
+                    size_factor: step_size,
                 });
                 count += 1;
             }

@@ -6,7 +6,6 @@ mod helpers;
 use std::time::{Duration, Instant};
 use async_std::print;
 use async_std::task;
-use helpers::model_helper;
 use regex::Regex;
 use std::env;
 
@@ -83,7 +82,8 @@ async fn main() {
         Box::new(CpuRenderer::new(canvas, &texture_creator))
     };
 
-    let (pixels, pixel_count) = model_helper::load_msh_file_with_texture().await;
+    let (pixels, pixel_count) = helpers::model_helper::load_msh_file_with_texture().await;
+    // let (pixels, pixel_count) = helpers::test_helper::generate_cube_pixels(1000000, 200.0);
     renderer.load_pixels(pixels);
 
     let event_pump = sdl_context.event_pump().unwrap();
