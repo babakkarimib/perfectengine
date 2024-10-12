@@ -94,7 +94,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
 
     let aspect_ratio = max(uniforms.canvas_height, uniforms.canvas_width) / min(uniforms.canvas_height, uniforms.canvas_width);
     let distance_z = uniforms.camera_z - rotated_position.z;
-    let scale_factor = uniforms.scale / distance_z * aspect_ratio * 2.0;
+    let scale_factor = uniforms.scale / distance_z * aspect_ratio * 1.7;
     if (scale_factor > distance_z) { return; }
 
     let lit_color = apply_lighting(
