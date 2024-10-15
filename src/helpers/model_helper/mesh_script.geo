@@ -1,9 +1,9 @@
 Merge "tea_pot.stp";
 
-Mesh.CharacteristicLengthMin = 0.5;
-Mesh.CharacteristicLengthMax = 0.8;
+Mesh.CharacteristicLengthMin = 0.9;
+Mesh.CharacteristicLengthMax = 1.0;
 
-Mesh.Algorithm = 6;
+Mesh.Algorithm = 4;
 
 Mesh.RecombineAll = 1;
 Recombine Surface "*";

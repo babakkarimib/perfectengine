@@ -1,1 +1,5 @@
 /target
+*.geo
+*.stp
+*.png
+*.msh

@@ -52,7 +52,7 @@ pub async fn load_msh_file_with_texture() -> (Vec<Pixel>, usize) {
                     g: rgba[1] as f32 / 255.0,
                     b: rgba[2] as f32 / 255.0,
                     a: rgba[3] as f32 / 255.0,
-                    size_factor: 0.9,
+                    size_factor: 1.0,
                 });
 
                 count += 1;
