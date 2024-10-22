@@ -83,10 +83,10 @@ async fn main() {
     };
 
     let mut pixel_count = 0;
-    let (pixels, count) = helpers::model_helper::load_msh_file_with_texture().await;
+    let (pixels, count) = helpers::test_helper::generate_cube_pixels(200000, 1000.0);
     pixel_count += count;
     renderer.load_pixels(pixels);
-    // let (pixels, count) = helpers::test_helper::generate_cube_pixels(2000000, 1000.0);
+    // let (pixels, count) = helpers::model_helper::load_msh_file_with_texture().await;
     // pixel_count += count;
     // renderer.load_pixels(pixels);
 

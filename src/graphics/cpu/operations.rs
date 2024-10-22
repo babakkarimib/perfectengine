@@ -50,17 +50,16 @@ impl Operations {
     }
     
     pub fn draw_pixel(
-        data: &mut [u8],
+        data: &mut [i32],
         depth_buffer: &mut [f32],
         canvas_width: i32,
         canvas_height: i32,
         x: i32,
         y: i32,
-        color: [f32; 4],
         block_size: i32,
         z: f32,
+        index: u32,
     ) {
-        let color = [(color[0] * 255.0) as u8, (color[1] * 255.0) as u8, (color[2] * 255.0) as u8, (color[3] * 255.0) as u8];
         for dx in 0..block_size {
             for dy in 0..block_size {
                 let px_offset = x + dx;
@@ -70,15 +69,10 @@ impl Operations {
                     continue;
                 }
 
-                let index = ((py_offset * canvas_width + px_offset) * 4) as usize;
                 let depth_index = (py_offset * canvas_width + px_offset) as usize;
-
                 if z > depth_buffer[depth_index] {
                     depth_buffer[depth_index] = z;
-                    data[index] = color[3];
-                    data[index + 1] = color[2];
-                    data[index + 2] = color[1];
-                    data[index + 3] = color[0];
+                    data[depth_index] = index as i32;
                 }
             }
         }

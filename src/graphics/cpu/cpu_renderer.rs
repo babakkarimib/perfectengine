@@ -33,10 +33,12 @@ impl CpuRenderer<'_> {
 
 impl Renderer<'_> for CpuRenderer<'_> {
     fn render(&mut self, view_state: &ViewState, light: &Light) {
-        let mut pixel_data: Vec<u8> = vec![0; (self.canvas_width * self.canvas_height * 4) as usize];
-        let mut depth_buffer = vec![-f32::INFINITY; (self.canvas_width * self.canvas_height) as usize];
+        let size = (self.canvas_width * self.canvas_height) as usize;
+        let mut pixel_map: Vec<i32> = vec![-1; size];
+        let mut pixel_rotations: Vec<(f32, f32, f32)> = vec![(0.0, 0.0, 0.0); size];
+        let mut depth_buffer = vec![-f32::INFINITY; size];
 
-        for pixel in &self.pixels {
+        for (i, pixel) in self.pixels.iter().enumerate() {
             let mut rotated_pixel = Operations::rotate(
                 (pixel.x, pixel.y, pixel.z),
                 (view_state.angle_x, view_state.angle_y, view_state.angle_z)
@@ -44,6 +46,8 @@ impl Renderer<'_> for CpuRenderer<'_> {
             rotated_pixel.0 += view_state.ref_x;
             rotated_pixel.1 += view_state.ref_y;
             rotated_pixel.2 += view_state.ref_z;
+
+            pixel_rotations.push(rotated_pixel);
 
             let mut rotated_position = Operations::rotate(
                 (
@@ -62,13 +66,6 @@ impl Renderer<'_> for CpuRenderer<'_> {
             let scale_factor = view_state.scale / distance_z * aspect_ratio * 1.7;
             if scale_factor > distance_z { continue; }
 
-            let lit_color = Operations::apply_lighting(
-                rotated_pixel,
-                (pixel.r, pixel.g, pixel.b), 
-                (light.x, light.y, light.z), 
-                light.intensity
-            );
-
             let projected = Operations::project(
                 rotated_position,
                 scale_factor,
@@ -76,12 +73,31 @@ impl Renderer<'_> for CpuRenderer<'_> {
                 self.canvas_height as f32
             );
 
-            let color = [lit_color.0, lit_color.1, lit_color.2, pixel.a];
             let block_size = (scale_factor * pixel.size_factor).ceil() as i32;
 
-            Operations::draw_pixel(&mut pixel_data, &mut depth_buffer, self.canvas_width as i32, self.canvas_height as i32, projected.0, projected.1, color, block_size, rotated_position.2);
+            Operations::draw_pixel(&mut pixel_map, &mut depth_buffer, self.canvas_width as i32, self.canvas_height as i32, projected.0, projected.1, block_size, rotated_position.2, i as u32);
         }
 
+        let pixel_data: Vec<u8> = pixel_map.iter().flat_map(|&index| {
+            if index == -1 { return vec![0, 0, 0, 0]}
+            let index = index as usize;
+            let pixel = self.pixels[index];
+
+            let lit_color = Operations::apply_lighting(
+                pixel_rotations[index],
+                (pixel.r, pixel.g, pixel.b), 
+                (light.x, light.y, light.z), 
+                light.intensity
+            );
+
+            vec![
+                (pixel.a * 255.0) as u8,
+                (lit_color.0 * 255.0) as u8,
+                (lit_color.1 * 255.0) as u8,
+                (lit_color.2 * 255.0) as u8,
+            ]
+        }).collect();        
+        
         self.texture.update(None, &pixel_data, (self.canvas_width * 4) as usize).unwrap();
         self.canvas.clear();
         self.canvas.copy(&self.texture, None, None).unwrap();
