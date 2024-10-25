@@ -92,11 +92,8 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         vec3<f32>(-uniforms.c_angle_x, -uniforms.c_angle_y, -uniforms.c_angle_z));
     rotated_position += vec3<f32>(uniforms.camera_x, uniforms.camera_y, uniforms.camera_z);
 
-    let aspect_ratio = max(uniforms.canvas_height, uniforms.canvas_width) / min(uniforms.canvas_height, uniforms.canvas_width);
-    let distance_z = uniforms.camera_z - rotated_position.z;
-    let scale_factor = uniforms.scale / distance_z * aspect_ratio * 1.7;
-    if (scale_factor > distance_z) { return; }
-
+    let scale_factor = uniforms.scale / uniforms.camera_z;
+    
     let lit_color = apply_lighting(
         rotated_pixel,
         vec3<f32>(uniforms.light_x, uniforms.light_y, uniforms.light_z),

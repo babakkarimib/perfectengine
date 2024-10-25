@@ -6,11 +6,11 @@ mod helpers;
 use std::time::{Duration, Instant};
 use async_std::print;
 use async_std::task;
+use graphics::gpu_renderer::GpuRenderer;
 use regex::Regex;
 use std::env;
 
-use types::{view_state::ViewState, light::Light, event_callback::EventCallback, renderer::Renderer};
-use graphics::{gpu::gpu_renderer::GpuRenderer, cpu::cpu_renderer::CpuRenderer};
+use types::{view_state::ViewState, light::Light, event_callback::EventCallback};
 use events::event_handler::EventHandler;
 
 const DEFAULT_WIDTH: u32 = 800;
@@ -21,7 +21,6 @@ const FRAME_DURATION: Duration = Duration::from_millis(1000 / FPS as u64);
 
 #[async_std::main]
 async fn main() {
-    let mut gpu_enabled = true;
     let mut framerate_log = false;
     let mut fullscreen = false;
     let mut width: Option<u32> = None;
@@ -34,8 +33,6 @@ async fn main() {
     for i in 1..args.len() {
         if let Some(arg) = args.get(i) {
             match arg.as_str() {
-                "gpu" => gpu_enabled = true,
-                "cpu" => gpu_enabled = false,
                 "framerate" => framerate_log = true,
                 "fullscreen" => fullscreen = true,
                 _ if width_regex.is_match(arg) => {
@@ -73,17 +70,10 @@ async fn main() {
         .unwrap()
     };
 
-    let texture_creator;
-    let mut renderer: Box<dyn Renderer<'static>> = if gpu_enabled {
-        Box::new(GpuRenderer::new(&window).await)
-    } else {
-        let canvas = window.into_canvas().present_vsync().build().unwrap();
-        texture_creator = canvas.texture_creator();
-        Box::new(CpuRenderer::new(canvas, &texture_creator))
-    };
+    let mut renderer = GpuRenderer::new(&window).await;
 
     let mut pixel_count = 0;
-    let (pixels, count) = helpers::test_helper::generate_cube_pixels(200000, 1000.0);
+    let (pixels, count) = helpers::test_helper::generate_cube_pixels(200000, 500.0);
     pixel_count += count;
     renderer.load_pixels(pixels);
     // let (pixels, count) = helpers::model_helper::load_msh_file_with_texture().await;
@@ -102,21 +92,21 @@ async fn main() {
         c_angle_z: 0.0,
         camera_x: 0.0,
         camera_y: 0.0,
-        camera_z: 600.0,
+        camera_z: 2.0,
         ref_x: 0.0,
         ref_y: 0.0,
         ref_z: 0.0,
-        scale: 300.0,
+        scale: 1.0,
     };
     let mut light = Light {
-        x: 30.0,
+        x: 0.0,
         y: 0.0,
-        z: 100.0,
-        intensity: 60.0,
+        z: 200.0,
+        intensity: 100.0,
     };
 
     println!("\nFULLSCREEN:   {}\t\tWIDTH: {}\t\tHEIGHT: {}", fullscreen, width, height);
-    println!("GPU ENABLED:  {}\t\tFPS LIMIT: {:5}\tPIXEL COUNT: {:10}", gpu_enabled, FPS, pixel_count);
+    println!("FPS LIMIT: {:5}\tPIXEL COUNT: {:10}", FPS, pixel_count);
     'running: loop {
         let process_start = Instant::now();
 

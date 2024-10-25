@@ -1,7 +1,7 @@
 use async_std::task;
 use sdl2::video::Window;
 use wgpu::{util::DeviceExt, SurfaceTargetUnsafe, SurfaceConfiguration};
-use crate::types::{light::Light, pixel::Pixel, renderer::Renderer, uniforms::Uniforms, view_state::ViewState};
+use crate::types::{light::Light, pixel::Pixel, uniforms::Uniforms, view_state::ViewState};
 
 pub struct GpuRenderer<'a> {
     device: wgpu::Device,
@@ -104,8 +104,8 @@ impl GpuRenderer<'_> {
     }
 }
 
-impl Renderer<'_> for GpuRenderer<'_> {
-    fn render(&mut self, view_state: &ViewState, light: &Light) {
+impl GpuRenderer<'_> {
+    pub fn render(&mut self, view_state: &ViewState, light: &Light) {
         let uniforms = Uniforms {
             angle_x: view_state.angle_x,
             angle_y: view_state.angle_y,
@@ -229,11 +229,11 @@ impl Renderer<'_> for GpuRenderer<'_> {
         task::block_on(async { self.device.poll(wgpu::Maintain::Wait) });
     }
 
-    fn load_pixels(&mut self, new_pixels: Vec<Pixel>) {
+    pub fn load_pixels(&mut self, new_pixels: Vec<Pixel>) {
         self.pixels.extend(new_pixels);
     }
     
-    fn resize(&mut self, width: u32, height: u32) {
+    pub fn resize(&mut self, width: u32, height: u32) {
         self.canvas_width = width as f32;
         self.canvas_height = height as f32;
         self.surface_config.width = width as u32;
