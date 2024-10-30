@@ -106,7 +106,7 @@ async fn main() {
     };
 
     println!("\nFULLSCREEN:   {}\t\tWIDTH: {}\t\tHEIGHT: {}", fullscreen, width, height);
-    println!("FPS LIMIT: {:5}\tPIXEL COUNT: {:10}", FPS, pixel_count);
+    println!("FPS LIMIT: {:5}\t\tPIXEL COUNT: {:10}", FPS, pixel_count);
     'running: loop {
         let process_start = Instant::now();
 

@@ -87,10 +87,11 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         vec3<f32>(uniforms.angle_x, uniforms.angle_y, uniforms.angle_z));
     rotated_pixel += vec3<f32>(uniforms.ref_x, uniforms.ref_y, uniforms.ref_z);
 
+    let depth = 2000.0;
     var rotated_position = rotate(
-        vec3<f32>(rotated_pixel.x, rotated_pixel.y, rotated_pixel.z - uniforms.camera_z), 
+        vec3<f32>(rotated_pixel.x, rotated_pixel.y, rotated_pixel.z - depth), 
         vec3<f32>(-uniforms.c_angle_x, -uniforms.c_angle_y, -uniforms.c_angle_z));
-    rotated_position += vec3<f32>(uniforms.camera_x, uniforms.camera_y, uniforms.camera_z);
+    rotated_position += vec3<f32>(uniforms.camera_x, uniforms.camera_y, depth);
 
     let scale_factor = uniforms.scale / uniforms.camera_z;
     
