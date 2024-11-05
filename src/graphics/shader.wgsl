@@ -87,7 +87,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         vec3<f32>(uniforms.angle_x, uniforms.angle_y, uniforms.angle_z));
     rotated_pixel += vec3<f32>(uniforms.ref_x, uniforms.ref_y, uniforms.ref_z);
 
-    let depth = 2000.0;
+    let depth = 1000.0;
     var rotated_position = rotate(
         vec3<f32>(rotated_pixel.x, rotated_pixel.y, rotated_pixel.z - depth), 
         vec3<f32>(-uniforms.c_angle_x, -uniforms.c_angle_y, -uniforms.c_angle_z));
@@ -96,7 +96,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     let scale_factor = uniforms.scale / uniforms.camera_z;
     
     let lit_color = apply_lighting(
-        rotated_pixel,
+        rotated_position,
         vec3<f32>(uniforms.light_x, uniforms.light_y, uniforms.light_z),
         vec3<f32>(pixel.r, pixel.g, pixel.b));
 
