@@ -152,30 +152,12 @@ impl GpuRenderer<'_> {
             let bind_group = self.device.create_bind_group(&wgpu::BindGroupDescriptor {
                 layout: &bind_group_layout,
                 entries: &[
-                    wgpu::BindGroupEntry {
-                        binding: 0,
-                        resource: uniform_buffer.as_entire_binding(),
-                    },
-                    wgpu::BindGroupEntry {
-                        binding: 1,
-                        resource: pixel_buffer.as_entire_binding(),
-                    },
-                    wgpu::BindGroupEntry {
-                        binding: 2,
-                        resource: wgpu::BindingResource::TextureView(&view),
-                    },
-                    wgpu::BindGroupEntry {
-                        binding: 3,
-                        resource: depth_buffer.as_entire_binding(),
-                    },
-                    wgpu::BindGroupEntry {
-                        binding: 4,
-                        resource: depth_check_buffer.as_entire_binding(),
-                    },
-                    wgpu::BindGroupEntry {
-                        binding: 5,
-                        resource: lock_buffer.as_entire_binding(),
-                    },
+                    wgpu::BindGroupEntry { binding: 0, resource: uniform_buffer.as_entire_binding(), },
+                    wgpu::BindGroupEntry { binding: 1, resource: pixel_buffer.as_entire_binding(), },
+                    wgpu::BindGroupEntry { binding: 2, resource: wgpu::BindingResource::TextureView(&view), },
+                    wgpu::BindGroupEntry { binding: 3, resource: depth_buffer.as_entire_binding(), },
+                    wgpu::BindGroupEntry { binding: 4, resource: depth_check_buffer.as_entire_binding(), },
+                    wgpu::BindGroupEntry { binding: 5, resource: lock_buffer.as_entire_binding(), },
                 ],
                 label: None,
             });
