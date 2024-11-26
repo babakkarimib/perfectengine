@@ -17,6 +17,7 @@ struct Uniforms {
     c_angle_y: f32,
     c_angle_z: f32,
     scale: f32,
+    perspective_scale: f32,
     canvas_width: f32,
     canvas_height: f32,
     light_x: f32,
@@ -93,7 +94,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         vec3<f32>(-uniforms.c_angle_x, -uniforms.c_angle_y, -uniforms.c_angle_z));
     rotated_position += vec3<f32>(uniforms.camera_x, uniforms.camera_y, depth);
 
-    let scale_factor = uniforms.scale / uniforms.camera_z;
+    let scale_factor = uniforms.scale / (uniforms.camera_z - rotated_position.z) * uniforms.perspective_scale;
     
     let lit_color = apply_lighting(
         rotated_position,

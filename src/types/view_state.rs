@@ -12,4 +12,5 @@ pub struct ViewState {
     pub ref_y: f32,
     pub ref_z: f32,
     pub scale: f32,
+    pub perspective_scale: f32,
 }

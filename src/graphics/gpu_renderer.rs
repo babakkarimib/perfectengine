@@ -114,6 +114,7 @@ impl GpuRenderer<'_> {
             c_angle_y: view_state.c_angle_y,
             c_angle_z: view_state.c_angle_z,
             scale: view_state.scale,
+            perspective_scale: view_state.perspective_scale,
             canvas_width: self.canvas_width,
             canvas_height: self.canvas_height,
             light_x: light.x,

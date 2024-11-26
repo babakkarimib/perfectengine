@@ -92,11 +92,12 @@ async fn main() {
         c_angle_z: 0.0,
         camera_x: 0.0,
         camera_y: 0.0,
-        camera_z: 2.0,
+        camera_z: 1000.0,
         ref_x: 0.0,
         ref_y: 0.0,
         ref_z: 0.0,
-        scale: 1.0,
+        scale: 1.0, 
+        perspective_scale: 500.0
     };
     let mut light = Light {
         x: 0.0,
