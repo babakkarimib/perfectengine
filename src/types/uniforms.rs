@@ -23,6 +23,7 @@ pub struct Uniforms {
     pub ref_x: f32,
     pub ref_y: f32,
     pub ref_z: f32,
+    pub z_offset: f32,
 }
 
 unsafe impl NoUninit for Uniforms {}

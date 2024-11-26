@@ -127,6 +127,7 @@ impl GpuRenderer<'_> {
             ref_x: view_state.ref_x,
             ref_y: view_state.ref_y,
             ref_z: view_state.ref_z,
+            z_offset: view_state.z_offset
         };
 
         let buffer_size = (self.canvas_width * self.canvas_height) as usize;

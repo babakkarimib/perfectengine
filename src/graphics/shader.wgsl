@@ -30,6 +30,7 @@ struct Uniforms {
     ref_x: f32,
     ref_y: f32,
     ref_z: f32,
+    z_offset: f32,
 };
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
@@ -88,29 +89,23 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         vec3<f32>(uniforms.angle_x, uniforms.angle_y, uniforms.angle_z));
     rotated_pixel += vec3<f32>(uniforms.ref_x, uniforms.ref_y, uniforms.ref_z);
 
-    let depth = 1000.0;
     var rotated_position = rotate(
-        vec3<f32>(rotated_pixel.x, rotated_pixel.y, rotated_pixel.z - depth), 
+        vec3<f32>(rotated_pixel.x, rotated_pixel.y, rotated_pixel.z - uniforms.camera_z), 
         vec3<f32>(-uniforms.c_angle_x, -uniforms.c_angle_y, -uniforms.c_angle_z));
-    rotated_position += vec3<f32>(uniforms.camera_x, uniforms.camera_y, depth);
+    rotated_position += vec3<f32>(uniforms.camera_x, uniforms.camera_y, uniforms.camera_z);
+
+    if (uniforms.camera_z - rotated_position.z < uniforms.z_offset) {
+        return;
+    }
 
     let scale_factor = uniforms.scale / (uniforms.camera_z - rotated_position.z) * uniforms.perspective_scale;
-    
-    let lit_color = apply_lighting(
-        rotated_position,
-        vec3<f32>(uniforms.light_x, uniforms.light_y, uniforms.light_z),
-        vec3<f32>(pixel.r, pixel.g, pixel.b));
-
     let projected = project(rotated_position, scale_factor);
 
     let px = i32(projected.x);
     let py = i32(projected.y);
     let canvas_width = i32(uniforms.canvas_width);
     let canvas_height = i32(uniforms.canvas_height);
-
-    let color = vec4<f32>(lit_color, pixel.a);
     let block_size = i32(ceil(scale_factor * pixel.size_factor));
-
     for (var dx: i32 = 0; dx < block_size; dx++) {
         for (var dy: i32 = 0; dy < block_size; dy++) {
             let px_offset = px + dx;
@@ -126,6 +121,11 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
                     if (rotated_position.z > depth_buffer[depth_index] || depth_check_buffer[depth_index] == 0u) {
                         depth_check_buffer[depth_index] = 1u;
                         depth_buffer[depth_index] = rotated_position.z;
+                            let lit_color = apply_lighting(
+                                rotated_position,
+                                vec3<f32>(uniforms.light_x, uniforms.light_y, uniforms.light_z),
+                                vec3<f32>(pixel.r, pixel.g, pixel.b));
+                            let color = vec4<f32>(lit_color, pixel.a);
                         textureStore(img, vec2<i32>(px_offset, py_offset), color);
                     }
                     atomicStore(&lock[depth_index], 0u);

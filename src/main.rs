@@ -96,6 +96,7 @@ async fn main() {
         ref_x: 0.0,
         ref_y: 0.0,
         ref_z: 0.0,
+        z_offset: 50.0,
         scale: 1.0, 
         perspective_scale: 500.0
     };
