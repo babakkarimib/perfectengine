@@ -101,6 +101,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     let scale_factor = uniforms.scale / (uniforms.camera_z - rotated_position.z) * uniforms.perspective_scale;
     let projected = project(rotated_position, scale_factor);
 
+    var color = vec4<f32>(0.0, 0.0, 0.0, -1.0);
     let px = i32(projected.x);
     let py = i32(projected.y);
     let canvas_width = i32(uniforms.canvas_width);
@@ -121,11 +122,13 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
                     if (rotated_position.z > depth_buffer[depth_index] || depth_check_buffer[depth_index] == 0u) {
                         depth_check_buffer[depth_index] = 1u;
                         depth_buffer[depth_index] = rotated_position.z;
+                        if (color[3] == -1.0) {
                             let lit_color = apply_lighting(
                                 rotated_position,
                                 vec3<f32>(uniforms.light_x, uniforms.light_y, uniforms.light_z),
                                 vec3<f32>(pixel.r, pixel.g, pixel.b));
-                            let color = vec4<f32>(lit_color, pixel.a);
+                            color = vec4<f32>(lit_color, pixel.a);
+                        }
                         textureStore(img, vec2<i32>(px_offset, py_offset), color);
                     }
                     atomicStore(&lock[depth_index], 0u);
