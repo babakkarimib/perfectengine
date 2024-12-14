@@ -127,7 +127,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
                                 rotated_position,
                                 vec3<f32>(uniforms.light_x, uniforms.light_y, uniforms.light_z),
                                 vec3<f32>(pixel.r, pixel.g, pixel.b));
-                            color = vec4<f32>(lit_color, pixel.a);
+                            color = vec4<f32>(lit_color, 1.0);
                         }
                         textureStore(img, vec2<i32>(px_offset, py_offset), color);
                     }
