@@ -73,10 +73,10 @@ async fn main() {
     let mut renderer = GpuRenderer::new(&window).await;
 
     let mut pixel_count = 0;
-    let (pixels, count) = helpers::test_helper::generate_cube_pixels(200000, 200.0);
+    let (pixels, count) = helpers::test_helper::generate_cube_pixels(1, 200000, 200.0);
     pixel_count += count;
     renderer.load_pixels(pixels);
-    // let (pixels, count) = helpers::model_helper::load_msh_file_with_texture().await;
+    // let (pixels, count) = helpers::model_helper::load_msh_file_with_texture(2).await;
     // pixel_count += count;
     // renderer.load_pixels(pixels);
 
