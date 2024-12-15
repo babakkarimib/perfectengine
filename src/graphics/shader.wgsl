@@ -17,7 +17,6 @@ struct Uniforms {
     c_angle_y: f32,
     c_angle_z: f32,
     scale: f32,
-    perspective_scale: f32,
     canvas_width: f32,
     canvas_height: f32,
     light_x: f32,
@@ -98,7 +97,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         return;
     }
 
-    let scale_factor = uniforms.scale / (uniforms.camera_z - rotated_position.z) * uniforms.perspective_scale;
+    let scale_factor = uniforms.scale / (uniforms.camera_z - rotated_position.z);
     let projected = project(rotated_position, scale_factor);
 
     var color = vec4<f32>(0.0, 0.0, 0.0, -1.0);
@@ -134,7 +133,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
                     atomicStore(&lock[depth_index], 0u);
                     break;
                 }
-                if (rotated_position.z <= depth_buffer[depth_index] && depth_check_buffer[depth_index] == 1u) {
+                if (rotated_position.z <= depth_buffer[depth_index] && depth_check_buffer[depth_index] > 0u) {
                     break;
                 }
             }

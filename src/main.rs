@@ -73,7 +73,7 @@ async fn main() {
     let mut renderer = GpuRenderer::new(&window).await;
 
     let mut pixel_count = 0;
-    let (pixels, count) = helpers::test_helper::generate_cube_pixels(200000, 500.0);
+    let (pixels, count) = helpers::test_helper::generate_cube_pixels(200000, 200.0);
     pixel_count += count;
     renderer.load_pixels(pixels);
     // let (pixels, count) = helpers::model_helper::load_msh_file_with_texture().await;
@@ -92,13 +92,12 @@ async fn main() {
         c_angle_z: 0.0,
         camera_x: 0.0,
         camera_y: 0.0,
-        camera_z: 1000.0,
+        camera_z: 300.0,
         ref_x: 0.0,
         ref_y: 0.0,
         ref_z: 0.0,
         z_offset: 50.0,
-        scale: 1.0, 
-        perspective_scale: 500.0
+        scale: 300.0,
     };
     let mut light = Light {
         x: 0.0,

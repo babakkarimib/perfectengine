@@ -10,7 +10,6 @@ pub struct Uniforms {
     pub c_angle_y: f32,
     pub c_angle_z: f32,
     pub scale: f32,
-    pub perspective_scale: f32,
     pub canvas_width: f32,
     pub canvas_height: f32,
     pub light_x: f32,
