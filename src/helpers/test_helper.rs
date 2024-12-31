@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 use crate::types::pixel::Pixel;
 
-pub fn generate_cube_pixels(iters: usize, size: f32) -> (Vec<Pixel>, usize) {
+pub fn generate_cube_pixels(id: u32, iters: usize, size: f32) -> (Vec<Pixel>, usize) {
     let colors = [
         [1.0, 0.0, 0.0, 1.0],
         [0.0, 1.0, 0.0, 1.0],
@@ -33,9 +33,10 @@ pub fn generate_cube_pixels(iters: usize, size: f32) -> (Vec<Pixel>, usize) {
                 let color = colors[(i + j + k) % colors.len()];
 
                 pixels.push(Pixel {
-                    x: pos_x,
-                    y: pos_y,
-                    z: pos_z,
+                    id,
+                    x: pos_x + 150.0,
+                    y: pos_y + 50.0,
+                    z: pos_z - 10.0,
                     r: color[0],
                     g: color[1],
                     b: color[2],

@@ -132,7 +132,7 @@ impl GpuRenderer<'_> {
         let buffer_size = (self.canvas_width * self.canvas_height) as usize;
         let uniform_buffer = create_uniform_buffer(&self.device, uniforms);
         let depth_buffer = create_depth_buffer(&self.device, buffer_size);
-        let depth_check_buffer = create_depth_check_buffer(&self.device, buffer_size);
+        let depth_map_buffer = create_depth_map_buffer(&self.device, buffer_size);
         let lock_buffer = create_lock_buffer(&self.device, buffer_size);
 
         let frame = self
@@ -157,7 +157,7 @@ impl GpuRenderer<'_> {
                     wgpu::BindGroupEntry { binding: 1, resource: pixel_buffer.as_entire_binding(), },
                     wgpu::BindGroupEntry { binding: 2, resource: wgpu::BindingResource::TextureView(&view), },
                     wgpu::BindGroupEntry { binding: 3, resource: depth_buffer.as_entire_binding(), },
-                    wgpu::BindGroupEntry { binding: 4, resource: depth_check_buffer.as_entire_binding(), },
+                    wgpu::BindGroupEntry { binding: 4, resource: depth_map_buffer.as_entire_binding(), },
                     wgpu::BindGroupEntry { binding: 5, resource: lock_buffer.as_entire_binding(), },
                 ],
                 label: None,
@@ -203,7 +203,7 @@ impl GpuRenderer<'_> {
             });
 
             render_pass.set_pipeline(&self.render_pipeline);
-            render_pass.draw(0..1, 0..1);
+            render_pass.draw(0..0, 0..1);
         }
 
         self.queue.submit(Some(encoder.finish()));
@@ -251,7 +251,7 @@ fn create_depth_buffer(device: &wgpu::Device, size: usize) -> wgpu::Buffer {
     })
 }
 
-fn create_depth_check_buffer(device: &wgpu::Device, size: usize) -> wgpu::Buffer {
+fn create_depth_map_buffer(device: &wgpu::Device, size: usize) -> wgpu::Buffer {
     device.create_buffer(&wgpu::BufferDescriptor {
         label: Some("Depth Check Buffer"),
         size: (std::mem::size_of::<u32>() * size) as u64,

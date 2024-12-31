@@ -1,4 +1,5 @@
 struct Pixel {
+    id: u32,
     x: f32,
     y: f32,
     z: f32,
@@ -36,7 +37,7 @@ struct Uniforms {
 @group(0) @binding(1) var<storage, read_write> pixels: array<Pixel>;
 @group(0) @binding(2) var img: texture_storage_2d<bgra8unorm, write>;
 @group(0) @binding(3) var<storage, read_write> depth_buffer: array<f32>;
-@group(0) @binding(4) var<storage, read_write> depth_check_buffer: array<u32>;
+@group(0) @binding(4) var<storage, read_write> depth_map_buffer: array<u32>;
 @group(0) @binding(5) var<storage, read_write> lock: array<atomic<u32>>;
 
 fn rotate(v: vec3<f32>, angle: vec3<f32>) -> vec3<f32> {
@@ -88,17 +89,17 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         vec3<f32>(uniforms.angle_x, uniforms.angle_y, uniforms.angle_z));
     rotated_pixel += vec3<f32>(uniforms.ref_x, uniforms.ref_y, uniforms.ref_z);
 
-    var rotated_position = rotate(
+    var positioned_pixel = rotate(
         vec3<f32>(rotated_pixel.x, rotated_pixel.y, rotated_pixel.z - uniforms.camera_z), 
         vec3<f32>(-uniforms.c_angle_x, -uniforms.c_angle_y, -uniforms.c_angle_z));
-    rotated_position += vec3<f32>(uniforms.camera_x, uniforms.camera_y, uniforms.camera_z);
+    positioned_pixel += vec3<f32>(uniforms.camera_x, uniforms.camera_y, uniforms.camera_z);
 
-    if (uniforms.camera_z - rotated_position.z < uniforms.z_offset) {
+    if (uniforms.camera_z - positioned_pixel.z < uniforms.z_offset) {
         return;
     }
 
-    let scale_factor = uniforms.scale / (uniforms.camera_z - rotated_position.z);
-    let projected = project(rotated_position, scale_factor);
+    let scale_factor = uniforms.scale / (uniforms.camera_z - positioned_pixel.z);
+    let projected = project(positioned_pixel, scale_factor);
 
     var color = vec4<f32>(0.0, 0.0, 0.0, -1.0);
     let px = i32(projected.x);
@@ -118,12 +119,12 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
             let depth_index = py_offset * canvas_width + px_offset;
             while (true) {
                 if (atomicCompareExchangeWeak(&lock[depth_index], 0u, 1u).exchanged) {
-                    if (rotated_position.z > depth_buffer[depth_index] || depth_check_buffer[depth_index] == 0u) {
-                        depth_check_buffer[depth_index] = 1u;
-                        depth_buffer[depth_index] = rotated_position.z;
+                    if (positioned_pixel.z > depth_buffer[depth_index] || depth_map_buffer[depth_index] == 0u) {
+                        depth_buffer[depth_index] = positioned_pixel.z;
+                        depth_map_buffer[depth_index] = pixel.id;
                         if (color[3] == -1.0) {
                             let lit_color = apply_lighting(
-                                rotated_position,
+                                positioned_pixel,
                                 vec3<f32>(uniforms.light_x, uniforms.light_y, uniforms.light_z),
                                 vec3<f32>(pixel.r, pixel.g, pixel.b));
                             color = vec4<f32>(lit_color, 1.0);
@@ -133,7 +134,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
                     atomicStore(&lock[depth_index], 0u);
                     break;
                 }
-                if (rotated_position.z <= depth_buffer[depth_index] && depth_check_buffer[depth_index] > 0u) {
+                if (positioned_pixel.z <= depth_buffer[depth_index] && depth_map_buffer[depth_index] > 0u) {
                     break;
                 }
             }
@@ -142,11 +143,9 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
 }
 
 @vertex
-fn vs_main(@builtin(vertex_index) vertex_index: u32) -> @builtin(position) vec4<f32> {
+fn vs_main() -> @builtin(position) vec4<f32> {
     return vec4<f32>(0.0, 0.0, 0.0, 1.0);
 }
 
 @fragment
-fn fs_main() -> @location(0) vec4<f32> {
-    return vec4<f32>(0.0, 0.0, 0.0, 0.0);
-}
+fn fs_main() {}

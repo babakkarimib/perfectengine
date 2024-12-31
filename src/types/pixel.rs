@@ -3,6 +3,7 @@ use bytemuck::{Pod, Zeroable};
 #[derive(Clone, Copy, Debug)]
 #[repr(C)]
 pub struct Pixel {
+    pub id: u32,
     pub x: f32,
     pub y: f32,
     pub z: f32,
