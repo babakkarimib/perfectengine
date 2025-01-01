@@ -1,6 +1,6 @@
 use async_std::task;
 use sdl2::video::Window;
-use wgpu::{util::DeviceExt, SurfaceTargetUnsafe, SurfaceConfiguration};
+use wgpu::{util::DeviceExt, Buffer, SurfaceConfiguration, SurfaceTargetUnsafe};
 use crate::types::{light::Light, pixel::Pixel, uniforms::Uniforms, view_state::ViewState};
 
 pub struct GpuRenderer<'a> {
@@ -14,6 +14,7 @@ pub struct GpuRenderer<'a> {
     canvas_width: f32,
     canvas_height: f32,
     batch_size: usize,
+    depth_map_buffer: Option<Buffer>,
 }
 
 impl GpuRenderer<'_> {
@@ -99,7 +100,8 @@ impl GpuRenderer<'_> {
             pixels: Vec::new(),
             canvas_width: canvas_width as f32,
             canvas_height: canvas_height as f32,
-            batch_size
+            batch_size,
+            depth_map_buffer: None
         }
     }
 }
@@ -210,6 +212,7 @@ impl GpuRenderer<'_> {
         frame.present();
         
         task::block_on(async { self.device.poll(wgpu::Maintain::Wait) });
+        self.depth_map_buffer = Some(depth_map_buffer);
     }
 
     pub fn load_pixels(&mut self, new_pixels: Vec<Pixel>) {
