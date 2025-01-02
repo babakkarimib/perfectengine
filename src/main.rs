@@ -84,6 +84,11 @@ async fn main() {
     pixel_count += count;
     renderer.load_pixels(pixels);
 
+    // TODO:
+    // - Save pixels of an object without id in a JSON file
+    // - Save a scene as a list of id, filename, position, rotation of the objects in the scene in a JSON file
+    // - Construct each object by reading the properties stored in a scene and then load the pixels using the filename and id
+
     let event_pump = sdl_context.event_pump().unwrap();
     let mut event_handler = EventHandler::new(event_pump);
 
