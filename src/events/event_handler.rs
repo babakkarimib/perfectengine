@@ -38,15 +38,15 @@ impl EventHandler {
         }
     }
 
-    pub fn handle_events(&mut self, view_state: &mut ViewState, light: &mut Light) -> EventCallback {
+    pub fn handle_events(&mut self, view_state: &mut ViewState, light: &mut Light) -> Option<EventCallback> {
         for event in self.event_pump.poll_iter() {
             match event {
                 Event::Window {
                     win_event: WindowEvent::SizeChanged(width, height),
                     ..
-                } => return EventCallback::Resized(width as u32, height as u32),
+                } => return Some(EventCallback::Resized(width as u32, height as u32)),
                 Event::Quit { .. }
-                | Event::KeyDown { keycode: Some(Keycode::Escape), .. } => return EventCallback::Quit,
+                | Event::KeyDown { keycode: Some(Keycode::Escape), .. } => return Some(EventCallback::Quit),
                 Event::KeyDown { keycode: Some(key), .. } | Event::KeyUp { keycode: Some(key), .. } => {
                     let pressed = matches!(event, Event::KeyDown { .. });
                     match key {
@@ -130,6 +130,6 @@ impl EventHandler {
         if self.r_move_left { view_state.ref_x -= 2.0; }
         if self.r_move_right { view_state.ref_x += 2.0; }
 
-        EventCallback::Next
+        None
     }
 }

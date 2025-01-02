@@ -17,7 +17,7 @@ const DEFAULT_WIDTH: u32 = 800;
 const DEFAULT_HEIGHT: u32 = 600;
 const SCALE: f32 = 1000.0;
 
-const FPS: u32 = 60;
+const FPS: u32 = 25;
 const FRAME_DURATION: Duration = Duration::from_millis(1000 / FPS as u64);
 
 #[async_std::main]
@@ -117,13 +117,18 @@ async fn main() {
 
         let event_callback = event_handler.handle_events(&mut view_state, &mut light);
         match event_callback {
-            EventCallback::Quit => break 'running,
-            EventCallback::Resized(w, h) => {
+            Some(EventCallback::Quit) => break 'running,
+            Some(EventCallback::Resized(w, h)) => {
                 renderer.resize(w, h);
                 view_state.scale = SCALE * (w as f32 / width as f32).min(h as f32 / height as f32);
             },
-            EventCallback::Next => renderer.render(&view_state, &light)
+            None => {}
         }
+
+        // Experimental animation
+        view_state.angle_y += 0.05;
+
+        renderer.render(&view_state, &light);
 
         let process_duration = process_start.elapsed();
         if framerate_log {
