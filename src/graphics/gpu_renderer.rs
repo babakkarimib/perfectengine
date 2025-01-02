@@ -108,6 +108,19 @@ impl GpuRenderer<'_> {
 
 impl GpuRenderer<'_> {
     pub fn render(&mut self, view_state: &ViewState, light: &Light) {
+        let frame = self
+            .surface
+            .get_current_texture()
+            .expect("Failed to acquire next swap chain texture");
+        let view = frame.texture.create_view(&wgpu::TextureViewDescriptor::default());
+
+        let buffer_size = (self.canvas_width * self.canvas_height) as usize;
+        let depth_buffer = create_depth_buffer(&self.device, buffer_size);
+        let depth_map_buffer = create_depth_map_buffer(&self.device, buffer_size);
+        let lock_buffer = create_lock_buffer(&self.device, buffer_size);
+
+        // TODO: iterate over objects here and for each render the pixels
+
         let uniforms = Uniforms {
             angle_x: view_state.angle_x,
             angle_y: view_state.angle_y,
@@ -130,18 +143,7 @@ impl GpuRenderer<'_> {
             ref_z: view_state.ref_z,
             z_offset: view_state.z_offset
         };
-
-        let buffer_size = (self.canvas_width * self.canvas_height) as usize;
         let uniform_buffer = create_uniform_buffer(&self.device, uniforms);
-        let depth_buffer = create_depth_buffer(&self.device, buffer_size);
-        let depth_map_buffer = create_depth_map_buffer(&self.device, buffer_size);
-        let lock_buffer = create_lock_buffer(&self.device, buffer_size);
-
-        let frame = self
-            .surface
-            .get_current_texture()
-            .expect("Failed to acquire next swap chain texture");
-        let view = frame.texture.create_view(&wgpu::TextureViewDescriptor::default());
 
         let num_batches = (self.pixels.len() + self.batch_size - 1) / self.batch_size;
         for batch_index in 0..num_batches {
