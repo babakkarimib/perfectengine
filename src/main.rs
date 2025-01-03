@@ -74,7 +74,7 @@ async fn main() {
     let mut renderer = GpuRenderer::new(&window).await;
 
     let mut pixel_count = 0;
-    let (pixels, count) = helpers::test_helper::generate_cube_pixels(1, 100000, 20.0);
+    let (pixels, count) = helpers::test_helper::generate_cube_pixels(1, 1000000, 23.0);
     pixel_count += count;
     renderer.load_pixels(pixels);
 
@@ -131,7 +131,7 @@ async fn main() {
         }
 
         // Experimental animation
-        view_state.angle_y += 0.05;
+        view_state.angle_y += 0.02;
 
         renderer.render(&view_state, &light);
 
