@@ -1,7 +1,7 @@
 Merge "tea_pot.stp";
 
-Mesh.CharacteristicLengthMin = 0.4;
-Mesh.CharacteristicLengthMax = 0.5;
+Mesh.CharacteristicLengthMin = 0.9;
+Mesh.CharacteristicLengthMax = 1.0;
 
 Mesh.Algorithm = 4;
 

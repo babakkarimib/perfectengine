@@ -17,7 +17,7 @@ const DEFAULT_WIDTH: u32 = 800;
 const DEFAULT_HEIGHT: u32 = 600;
 const SCALE: f32 = 1000.0;
 
-const FPS: u32 = 25;
+const FPS: u32 = 60;
 const FRAME_DURATION: Duration = Duration::from_millis(1000 / FPS as u64);
 
 #[async_std::main]
