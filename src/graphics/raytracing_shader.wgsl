@@ -35,10 +35,9 @@ struct Uniforms {
 
 @group(0) @binding(0) var<uniform> uniforms: Uniforms;
 @group(0) @binding(1) var<storage, read_write> pixels: array<Pixel>;
-@group(0) @binding(2) var img: texture_storage_2d<bgra8unorm, write>;
-@group(0) @binding(3) var<storage, read_write> depth_buffer: array<f32>;
-@group(0) @binding(4) var<storage, read_write> depth_map_buffer: array<u32>;
-@group(0) @binding(5) var<storage, read_write> lock: array<atomic<u32>>;
+@group(0) @binding(2) var<storage, read_write> depth_buffer: array<f32>;
+@group(0) @binding(3) var<storage, read_write> depth_map_buffer: array<u32>;
+@group(0) @binding(4) var<storage, read_write> lock: array<atomic<u32>>;
 
 fn rotate(v: vec3<f32>, angle: vec3<f32>) -> vec3<f32> {
     let cos_x = cos(angle.x);
@@ -62,16 +61,6 @@ fn rotate(v: vec3<f32>, angle: vec3<f32>) -> vec3<f32> {
     return vec3<f32>(final_x, final_y, rotated_y.z);
 }
 
-fn apply_lighting(
-    position: vec3<f32>,
-    light: vec3<f32>,
-    color: vec3<f32>
-) -> vec3<f32> {
-    let distance = distance(light, vec3<f32>(position.x, position.y, position.z));
-    let intensity = uniforms.intensity / distance;
-    return clamp(color * intensity, vec3<f32>(0.0), vec3<f32>(1.0));
-}
-
 fn project(v: vec3<f32>, scale_factor: f32) -> vec2<f32> {
     return vec2<f32>(
         v.x * scale_factor + uniforms.canvas_width / 2.0,
@@ -90,18 +79,18 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     rotated_pixel += vec3<f32>(uniforms.ref_x, uniforms.ref_y, uniforms.ref_z);
 
     var positioned_pixel = rotate(
-        vec3<f32>(rotated_pixel.x, rotated_pixel.y, rotated_pixel.z - uniforms.camera_z), 
-        vec3<f32>(-uniforms.c_angle_x, -uniforms.c_angle_y, -uniforms.c_angle_z));
-    positioned_pixel += vec3<f32>(uniforms.camera_x, uniforms.camera_y, uniforms.camera_z);
+        vec3<f32>(rotated_pixel.x, rotated_pixel.y, rotated_pixel.z - uniforms.light_z), 
+        vec3<f32>(-uniforms.c_angle_x, -uniforms.c_angle_y, -uniforms.c_angle_z));  // temporary
+        // vec3<f32>(-20.0, -20.0, 0.0));
+    positioned_pixel += vec3<f32>(uniforms.light_x, uniforms.light_y, uniforms.light_z);
 
-    if (uniforms.camera_z - positioned_pixel.z < uniforms.z_offset) {
-        return;
-    }
+    // if (uniforms.light_z - positioned_pixel.z < uniforms.z_offset) {
+    //     return;
+    // }
 
-    let scale_factor = uniforms.scale / (uniforms.camera_z - positioned_pixel.z);
+    let scale_factor = uniforms.scale / uniforms.light_z;
     let projected = project(positioned_pixel, scale_factor);
 
-    var color = vec4<f32>(0.0, 0.0, 0.0, -1.0);
     let px = i32(projected.x);
     let py = i32(projected.y);
     let canvas_width = i32(uniforms.canvas_width);
@@ -122,14 +111,6 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
                     if (positioned_pixel.z > depth_buffer[depth_index] || depth_map_buffer[depth_index] == 0u) {
                         depth_buffer[depth_index] = positioned_pixel.z;
                         depth_map_buffer[depth_index] = pixel.id;
-                        if (color[3] == -1.0) {
-                            let lit_color = apply_lighting(
-                                positioned_pixel,
-                                vec3<f32>(uniforms.light_x, uniforms.light_y, uniforms.light_z),
-                                vec3<f32>(pixel.r, pixel.g, pixel.b));
-                            color = vec4<f32>(lit_color, 1.0);
-                        }
-                        textureStore(img, vec2<i32>(px_offset, py_offset), color);
                     }
                     atomicStore(&lock[depth_index], 0u);
                     break;
@@ -141,11 +122,3 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         }
     }
 }
-
-@vertex
-fn vs_main() -> @builtin(position) vec4<f32> {
-    return vec4<f32>(0.0, 0.0, 0.0, 1.0);
-}
-
-@fragment
-fn fs_main() {}

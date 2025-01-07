@@ -17,7 +17,7 @@ const DEFAULT_WIDTH: u32 = 800;
 const DEFAULT_HEIGHT: u32 = 600;
 const SCALE: f32 = 1000.0;
 
-const FPS: u32 = 60;
+const FPS: u32 = 25;
 const FRAME_DURATION: Duration = Duration::from_millis(1000 / FPS as u64);
 
 #[async_std::main]
@@ -95,7 +95,7 @@ async fn main() {
     let mut view_state = ViewState { 
         angle_x: 0.0,
         angle_y: 0.0,
-        angle_z: 0.0,
+        angle_z: 25.0,
         c_angle_x: 0.0,
         c_angle_y: 0.0,
         c_angle_z: 0.0,
@@ -111,8 +111,8 @@ async fn main() {
     let mut light = Light {
         x: 0.0,
         y: 0.0,
-        z: 100.0,
-        intensity: 50.0,
+        z: 700.0,
+        intensity: 500.0,
     };
 
     println!("\nFULLSCREEN:   {}\t\tWIDTH: {}\t\tHEIGHT: {}", fullscreen, width, height);
@@ -131,7 +131,7 @@ async fn main() {
         }
 
         // Experimental animation
-        view_state.angle_y += 0.02;
+        view_state.angle_y -= 0.1;
 
         renderer.render(&view_state, &light);
 

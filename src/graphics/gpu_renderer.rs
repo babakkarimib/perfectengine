@@ -8,7 +8,9 @@ pub struct GpuRenderer<'a> {
     queue: wgpu::Queue,
     surface: wgpu::Surface<'a>,
     surface_config: SurfaceConfiguration,
-    compute_pipeline: wgpu::ComputePipeline,
+    raytracing_compute_pipeline: wgpu::ComputePipeline,
+    lighting_compute_pipeline: wgpu::ComputePipeline,
+    projection_compute_pipeline: wgpu::ComputePipeline,
     render_pipeline: wgpu::RenderPipeline,
     pixels: Vec<Pixel>,
     canvas_width: f32,
@@ -46,11 +48,29 @@ impl GpuRenderer<'_> {
         };
         surface.configure(&device, &surface_config);
 
-        let shader_source = include_str!("shader.wgsl");
-        let shader_module = create_shader_module(&device, shader_source);
+        let shader_module = create_shader_module("Raytracing Compute Shader", &device, include_str!("raytracing_shader.wgsl"));
+        let raytracing_compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
+            label: Some("Raytracing Compute Pipeline"),
+            layout: None,
+            module: &shader_module,
+            entry_point: "main",
+            compilation_options: Default::default(),
+            cache: None,
+        });
 
-        let compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
-            label: Some("Compute Pipeline"),
+        let shader_module = create_shader_module("Lighting Compute Shader", &device, include_str!("lighting_shader.wgsl"));
+        let lighting_compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
+            label: Some("Lighting Compute Pipeline"),
+            layout: None,
+            module: &shader_module,
+            entry_point: "main",
+            compilation_options: Default::default(),
+            cache: None,
+        });
+
+        let shader_module = create_shader_module("Projection Compute Shader", &device, include_str!("projection_shader.wgsl"));
+        let projection_compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
+            label: Some("Projection Compute Pipeline"),
             layout: None,
             module: &shader_module,
             entry_point: "main",
@@ -95,7 +115,9 @@ impl GpuRenderer<'_> {
             queue,
             surface,
             surface_config,
-            compute_pipeline,
+            raytracing_compute_pipeline,
+            lighting_compute_pipeline,
+            projection_compute_pipeline,
             render_pipeline,
             pixels: Vec::new(),
             canvas_width: canvas_width as f32,
@@ -115,11 +137,11 @@ impl GpuRenderer<'_> {
         let view = frame.texture.create_view(&wgpu::TextureViewDescriptor::default());
 
         let buffer_size = (self.canvas_width * self.canvas_height) as usize;
-        let depth_buffer = create_depth_buffer(&self.device, buffer_size);
-        let depth_map_buffer = create_depth_map_buffer(&self.device, buffer_size);
+        let raytracing_depth_buffer = create_depth_buffer(&self.device, buffer_size);
+        let raytracing_depth_map_buffer = create_depth_map_buffer(&self.device, buffer_size);
+        let projection_depth_buffer = create_depth_buffer(&self.device, buffer_size);
+        let projection_depth_map_buffer = create_depth_map_buffer(&self.device, buffer_size);
         let lock_buffer = create_lock_buffer(&self.device, buffer_size);
-
-        // TODO: iterate over objects here and for each render the pixels
 
         let uniforms = Uniforms {
             angle_x: view_state.angle_x,
@@ -141,9 +163,11 @@ impl GpuRenderer<'_> {
             ref_x: view_state.ref_x,
             ref_y: view_state.ref_y,
             ref_z: view_state.ref_z,
-            z_offset: view_state.z_offset
+            z_offset: view_state.z_offset,
         };
         let uniform_buffer = create_uniform_buffer(&self.device, uniforms);
+
+        // TODO: iterate over objects here and for each render the pixels
 
         let num_batches = (self.pixels.len() + self.batch_size - 1) / self.batch_size;
         for batch_index in 0..num_batches {
@@ -153,32 +177,93 @@ impl GpuRenderer<'_> {
             let pixel_buffer =
                 create_pixel_buffer(&self.device, pixel_batch.len() * std::mem::size_of::<Pixel>());
 
-            let bind_group_layout = self.compute_pipeline.get_bind_group_layout(0);
+            self.queue.write_buffer(&pixel_buffer, 0, bytemuck::cast_slice(&pixel_batch));
+
+            let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("Raytracing Encoder"),
+            });
+
+            let bind_group_layout = self.raytracing_compute_pipeline.get_bind_group_layout(0);
+            let bind_group = self.device.create_bind_group(&wgpu::BindGroupDescriptor {
+                layout: &bind_group_layout,
+                entries: &[
+                    wgpu::BindGroupEntry { binding: 0, resource: uniform_buffer.as_entire_binding(), },
+                    wgpu::BindGroupEntry { binding: 1, resource: pixel_buffer.as_entire_binding(), },
+                    wgpu::BindGroupEntry { binding: 2, resource: raytracing_depth_buffer.as_entire_binding(), },
+                    wgpu::BindGroupEntry { binding: 3, resource: raytracing_depth_map_buffer.as_entire_binding(), },
+                    wgpu::BindGroupEntry { binding: 4, resource: lock_buffer.as_entire_binding(), },
+                ],
+                label: None,
+            });
+
+            {
+                let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor {
+                    label: Some("Raytracing Compute Pass"),
+                    timestamp_writes: None,
+                });
+                cpass.set_pipeline(&self.raytracing_compute_pipeline);
+                cpass.set_bind_group(0, &bind_group, &[]);
+                cpass.dispatch_workgroups((end - start) as u32, 1, 1);
+            }
+
+            self.queue.submit(Some(encoder.finish()));
+
+        }
+
+        for batch_index in 0..num_batches {
+            let start = batch_index * self.batch_size;
+            let end = std::cmp::min(start + self.batch_size, self.pixels.len());
+            let pixel_batch = &self.pixels[start..end];
+            let pixel_buffer =
+                create_pixel_buffer(&self.device, pixel_batch.len() * std::mem::size_of::<Pixel>());
+
+            self.queue.write_buffer(&pixel_buffer, 0, bytemuck::cast_slice(&pixel_batch));
+            
+            let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                label: Some("Main Encoder"),
+            });
+
+            let bind_group_layout = self.lighting_compute_pipeline.get_bind_group_layout(0);
+            let bind_group = self.device.create_bind_group(&wgpu::BindGroupDescriptor {
+                layout: &bind_group_layout,
+                entries: &[
+                    wgpu::BindGroupEntry { binding: 0, resource: uniform_buffer.as_entire_binding(), },
+                    wgpu::BindGroupEntry { binding: 1, resource: pixel_buffer.as_entire_binding(), },
+                    wgpu::BindGroupEntry { binding: 2, resource: raytracing_depth_buffer.as_entire_binding(), },
+                ],
+                label: None,
+            });
+
+            {
+                let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor {
+                    label: Some("Lighting Compute Pass"),
+                    timestamp_writes: None,
+                });
+                cpass.set_pipeline(&self.lighting_compute_pipeline);
+                cpass.set_bind_group(0, &bind_group, &[]);
+                cpass.dispatch_workgroups((end - start) as u32, 1, 1);
+            }
+
+            let bind_group_layout = self.projection_compute_pipeline.get_bind_group_layout(0);
             let bind_group = self.device.create_bind_group(&wgpu::BindGroupDescriptor {
                 layout: &bind_group_layout,
                 entries: &[
                     wgpu::BindGroupEntry { binding: 0, resource: uniform_buffer.as_entire_binding(), },
                     wgpu::BindGroupEntry { binding: 1, resource: pixel_buffer.as_entire_binding(), },
                     wgpu::BindGroupEntry { binding: 2, resource: wgpu::BindingResource::TextureView(&view), },
-                    wgpu::BindGroupEntry { binding: 3, resource: depth_buffer.as_entire_binding(), },
-                    wgpu::BindGroupEntry { binding: 4, resource: depth_map_buffer.as_entire_binding(), },
+                    wgpu::BindGroupEntry { binding: 3, resource: projection_depth_buffer.as_entire_binding(), },
+                    wgpu::BindGroupEntry { binding: 4, resource: projection_depth_map_buffer.as_entire_binding(), },
                     wgpu::BindGroupEntry { binding: 5, resource: lock_buffer.as_entire_binding(), },
                 ],
                 label: None,
             });
 
-            self.queue.write_buffer(&pixel_buffer, 0, bytemuck::cast_slice(&pixel_batch));
-
-            let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("Main Encoder"),
-            });
-
             {
                 let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor {
-                    label: Some("Main Compute Pass"),
+                    label: Some("Projection Compute Pass"),
                     timestamp_writes: None,
                 });
-                cpass.set_pipeline(&self.compute_pipeline);
+                cpass.set_pipeline(&self.projection_compute_pipeline);
                 cpass.set_bind_group(0, &bind_group, &[]);
                 cpass.dispatch_workgroups((end - start) as u32, 1, 1);
             }
@@ -214,7 +299,7 @@ impl GpuRenderer<'_> {
         frame.present();
         
         task::block_on(async { self.device.poll(wgpu::Maintain::Wait) });
-        self.depth_map_buffer = Some(depth_map_buffer);
+        self.depth_map_buffer = Some(projection_depth_map_buffer);
     }
 
     pub fn load_pixels(&mut self, new_pixels: Vec<Pixel>) {
@@ -289,9 +374,9 @@ async fn request_device(adapter: &wgpu::Adapter) -> (wgpu::Device, wgpu::Queue) 
         .unwrap()
 }
 
-fn create_shader_module(device: &wgpu::Device, source: &str) -> wgpu::ShaderModule {
+fn create_shader_module(label: &str, device: &wgpu::Device, source: &str) -> wgpu::ShaderModule {
     device.create_shader_module(wgpu::ShaderModuleDescriptor {
-        label: Some("Compute Shader"),
+        label: Some(label),
         source: wgpu::ShaderSource::Wgsl(source.into()),
     })
 }
