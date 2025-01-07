@@ -67,7 +67,7 @@ fn apply_lighting(
     light: vec3<f32>,
     color: vec4<f32>
 ) -> vec3<f32> {
-    if (color[3] > 0.0) {
+    if (color[3] == -1.0) {
         return vec3<f32>(color[0], color[1], color[2]) * 0.3;
     }
     let distance = distance(light, vec3<f32>(position.x, position.y, position.z));

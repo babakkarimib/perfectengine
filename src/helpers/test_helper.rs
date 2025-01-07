@@ -50,3 +50,37 @@ pub fn generate_cube_pixels(id: u32, iters: usize, size: f32) -> (Vec<Pixel>, us
 
     (pixels, count)
 }
+
+pub fn generate_face_pixels(id: u32, iters: usize, size: f32) -> (Vec<Pixel>, usize) {
+    let color = [1.0, 1.0, 1.0, 1.0];
+
+    let step = (iters as f32).cbrt().floor() as usize;
+    let step_size = size / step as f32;
+
+    let mut pixels = Vec::new();
+    let mut count = 0;
+
+    for i in 0..step {
+        for j in 0..step {
+            let k = 0; // Only the front face (k = 0)
+            let pos_x = i as f32 * step_size - size / 2.0 + step_size / 2.0;
+            let pos_y = j as f32 * step_size - size / 2.0 + step_size / 2.0;
+            let pos_z = k as f32 * step_size - size / 2.0 + step_size / 2.0;
+
+            pixels.push(Pixel {
+                id,
+                x: pos_x,
+                y: pos_y,
+                z: pos_z - 50.0,
+                r: color[0],
+                g: color[1],
+                b: color[2],
+                a: color[3],
+                size_factor: step_size,
+            });
+            count += 1;
+        }
+    }
+
+    (pixels, count)
+}

@@ -82,11 +82,11 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         vec3<f32>(rotated_pixel.x, rotated_pixel.y, rotated_pixel.z - uniforms.light_z), 
         vec3<f32>(-uniforms.c_angle_x, -uniforms.c_angle_y, -uniforms.c_angle_z));  // temporary
         // vec3<f32>(-20.0, -20.0, 0.0));
-    positioned_pixel += vec3<f32>(uniforms.light_x, uniforms.light_y, uniforms.light_z);
+    positioned_pixel -= vec3<f32>(uniforms.light_x, uniforms.light_y, -uniforms.light_z);
 
-    // if (uniforms.light_z - positioned_pixel.z < uniforms.z_offset) {
-    //     return;
-    // }
+    if (uniforms.light_z - positioned_pixel.z < uniforms.z_offset) {
+        return;
+    }
 
     let scale_factor = uniforms.scale / uniforms.light_z;
     let projected = project(positioned_pixel, scale_factor);
