@@ -71,7 +71,11 @@ fn apply_lighting(
         return vec3<f32>(color[0], color[1], color[2]) * 0.3;
     }
     let distance = distance(light, vec3<f32>(position.x, position.y, position.z));
-    let intensity = uniforms.intensity / distance;
+    var shine = 5 / distance(vec3<f32>(0.0, 0.0, 95.0), vec3<f32>(position.x, position.y, position.z)); // temporary
+    shine += 5 / distance(vec3<f32>(0.0, 0.0, 145.0), vec3<f32>(position.x, position.y, position.z));
+    shine += 5 / distance(vec3<f32>(0.0, 0.0, 75.0), vec3<f32>(position.x, position.y, position.z));
+    shine += 5 / distance(vec3<f32>(0.0, 0.0, 60.0), vec3<f32>(position.x, position.y, position.z));
+    let intensity = (uniforms.intensity / distance) + shine;
     return clamp(vec3<f32>(color[0], color[1], color[2]) * intensity, vec3<f32>(0.0), vec3<f32>(1.0));
 }
 
@@ -87,13 +91,13 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     let index = id.x;
     let pixel = pixels[index];
 
-    var rotated_pixel = rotate(
+    var trasnformed_pixel = rotate(
         vec3<f32>(pixel.x, pixel.y, pixel.z),
         vec3<f32>(uniforms.angle_x, uniforms.angle_y, uniforms.angle_z));
-    rotated_pixel += vec3<f32>(uniforms.ref_x, uniforms.ref_y, uniforms.ref_z);
+    trasnformed_pixel += vec3<f32>(uniforms.ref_x, uniforms.ref_y, uniforms.ref_z);
 
     var positioned_pixel = rotate(
-        vec3<f32>(rotated_pixel.x, rotated_pixel.y, rotated_pixel.z - uniforms.camera_z),   // temporary
+        vec3<f32>(trasnformed_pixel.x, trasnformed_pixel.y, trasnformed_pixel.z - uniforms.camera_z),   // temporary
         // vec3<f32>(-uniforms.c_angle_x, -uniforms.c_angle_y, -uniforms.c_angle_z));
         vec3<f32>(0.0, 0.0, 0.0));
     positioned_pixel += vec3<f32>(uniforms.camera_x, uniforms.camera_y, uniforms.camera_z);
@@ -106,7 +110,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     let projected = project(positioned_pixel, scale_factor);
 
     let lit_color = apply_lighting(
-        positioned_pixel,
+        trasnformed_pixel,
         vec3<f32>(uniforms.light_x, uniforms.light_y, uniforms.light_z),
         vec4<f32>(pixel.r, pixel.g, pixel.b, pixel.a));
     let color = vec4<f32>(lit_color, 1.0);

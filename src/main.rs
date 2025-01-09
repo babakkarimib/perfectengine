@@ -116,7 +116,7 @@ async fn main() {
         x: 0.0,
         y: 0.0,
         z: 700.0,
-        intensity: 500.0,
+        intensity: 300.0,
     };
 
     println!("\nFULLSCREEN:   {}\t\tWIDTH: {}\t\tHEIGHT: {}", fullscreen, width, height);
@@ -135,7 +135,7 @@ async fn main() {
         }
 
         // Experimental animation
-        // view_state.angle_y -= 0.05;
+        view_state.angle_y -= 0.01;
 
         renderer.render(&view_state, &light);
 
