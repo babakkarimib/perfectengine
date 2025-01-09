@@ -72,7 +72,7 @@ fn apply_lighting(
     }
     let distance = distance(light, vec3<f32>(position.x, position.y, position.z));
     var shine = 5 / distance(vec3<f32>(0.0, 0.0, 95.0), vec3<f32>(position.x, position.y, position.z)); // temporary
-    shine += 5 / distance(vec3<f32>(0.0, 0.0, 145.0), vec3<f32>(position.x, position.y, position.z));
+    shine += 5 / distance(vec3<f32>(0.0, 0.0, 155.0), vec3<f32>(position.x, position.y, position.z));
     shine += 5 / distance(vec3<f32>(0.0, 0.0, 75.0), vec3<f32>(position.x, position.y, position.z));
     shine += 5 / distance(vec3<f32>(0.0, 0.0, 60.0), vec3<f32>(position.x, position.y, position.z));
     let intensity = (uniforms.intensity / distance) + shine;
