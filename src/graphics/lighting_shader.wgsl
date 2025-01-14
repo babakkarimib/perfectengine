@@ -94,7 +94,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
     let canvas_width = i32(uniforms.canvas_width);
     let canvas_height = i32(uniforms.canvas_height);
     let block_size = i32(ceil(scale_factor * pixel.size_factor));
-    var flaged = true;  // set to false to illuminate (but not shade) out of bounds
+    var in_bounds = true;  // set to false to illuminate (but not shade) out of bounds
     for (var dx: i32 = 0; dx < block_size; dx++) {
         for (var dy: i32 = 0; dy < block_size; dy++) {
             let px_offset = px + dx;
@@ -104,17 +104,16 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
                 continue;
             }
 
+            in_bounds = true;
+
             let depth_index = py_offset * canvas_width + px_offset;
             if (distance(depth_buffer[depth_index], positioned_pixel.z) < 4.0) {
                 return;
             }
-
-            if (!flaged) {
-                flaged = true;
-            }
         }
     }
-    if (flaged) {
+    
+    if (in_bounds) {
         pixels[index].a = -1.0;
     }
 }
