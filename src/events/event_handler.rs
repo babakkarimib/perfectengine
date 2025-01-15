@@ -89,8 +89,8 @@ impl EventHandler {
                     if self.drag {
                         let dx = x - self.last_x;
                         let dy = y - self.last_y;
-                        view_state.angle_x += (dy as f32 * 0.01) % (2.0 * std::f32::consts::PI);
-                        view_state.angle_y += (dx as f32 * 0.01) % (2.0 * std::f32::consts::PI);
+                        view_state.angle_x = (view_state.angle_x + (dy as f32 * 0.01)).rem_euclid(2.0 * std::f32::consts::PI);
+                        view_state.angle_y = (view_state.angle_y + (dx as f32 * 0.01)).rem_euclid(2.0 * std::f32::consts::PI);
                         self.last_x = x;
                         self.last_y = y;
                     }
@@ -105,8 +105,8 @@ impl EventHandler {
                     if self.m_drag {
                         let dx = x - self.last_x;
                         let dy = y - self.last_y;
-                        view_state.c_angle_x -= (dy as f32 * 0.01) % (2.0 * std::f32::consts::PI);
-                        view_state.c_angle_y -= (dx as f32 * 0.01) % (2.0 * std::f32::consts::PI);
+                        view_state.c_angle_x = (view_state.c_angle_x - (dy as f32 * 0.01)).rem_euclid(2.0 * std::f32::consts::PI);
+                        view_state.c_angle_y = (view_state.c_angle_y - (dx as f32 * 0.01)).rem_euclid(2.0 * std::f32::consts::PI);
                         self.last_x = x;
                         self.last_y = y;
                     }
