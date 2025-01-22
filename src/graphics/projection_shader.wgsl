@@ -75,10 +75,10 @@ fn apply_lighting(
     return clamp(vec3<f32>(color[0], color[1], color[2]) * intensity, vec3<f32>(0.0), vec3<f32>(1.0));
 }
 
-fn project(v: vec3<f32>, scale_factor: f32) -> vec2<f32> {
-    return vec2<f32>(
-        v.x * scale_factor + uniforms.canvas_width / 2.0,
-        -v.y * scale_factor + uniforms.canvas_height / 2.0
+fn project(v: vec3<f32>, scale_factor: f32) -> vec2<i32> {
+    return vec2<i32>(
+        i32(v.x * scale_factor + uniforms.canvas_width / 2.0),
+        i32(-v.y * scale_factor + uniforms.canvas_height / 2.0)
     );
 }
 
@@ -111,15 +111,13 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
         vec4<f32>(pixel.r, pixel.g, pixel.b, pixel.a));
     let color = vec4<f32>(lit_color, 1.0);
 
-    let px = i32(projected.x);
-    let py = i32(projected.y);
     let canvas_width = i32(uniforms.canvas_width);
     let canvas_height = i32(uniforms.canvas_height);
     let block_size = i32(ceil(scale_factor * pixel.size_factor));
     for (var dx: i32 = 0; dx < block_size; dx++) {
         for (var dy: i32 = 0; dy < block_size; dy++) {
-            let px_offset = px + dx;
-            let py_offset = py + dy;
+            let px_offset = projected.x + dx;
+            let py_offset = projected.y + dy;
 
             if (px_offset < 0 || px_offset >= canvas_width || py_offset < 0 || py_offset >= canvas_height) {
                 continue;
