@@ -131,7 +131,7 @@ async fn main() {
         }
 
         // Experimental animation
-        view_state.angle_y = (view_state.angle_y - 0.01).rem_euclid(2.0 * std::f32::consts::PI);
+        // view_state.angle_y = (view_state.angle_y - 0.01).rem_euclid(2.0 * std::f32::consts::PI);
 
         renderer.render(&view_state, &light);
 
