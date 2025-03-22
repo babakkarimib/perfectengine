@@ -17,6 +17,9 @@ struct Uniforms {
     c_angle_x: f32,
     c_angle_y: f32,
     c_angle_z: f32,
+    l_angle_x: f32,
+    l_angle_y: f32,
+    l_angle_z: f32,
     scale: f32,
     canvas_width: f32,
     canvas_height: f32,
@@ -78,8 +81,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
 
     var positioned_pixel = rotate(
         vec3<f32>(trasnformed_pixel.x, trasnformed_pixel.y, trasnformed_pixel.z - uniforms.light_z), 
-        vec3<f32>(-uniforms.c_angle_x, -uniforms.c_angle_y, -uniforms.c_angle_z));  // temporary
-        // vec3<f32>(-20.0, -20.0, 0.0));
+        vec3<f32>(-uniforms.l_angle_x, -uniforms.l_angle_y, -uniforms.l_angle_z));
     positioned_pixel -= vec3<f32>(uniforms.light_x, uniforms.light_y, -uniforms.light_z);
 
     if (uniforms.light_z - positioned_pixel.z < uniforms.z_offset) {

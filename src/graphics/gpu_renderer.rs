@@ -1,7 +1,7 @@
 use async_std::task;
 use sdl2::video::Window;
 use wgpu::{util::DeviceExt, Buffer, SurfaceConfiguration, SurfaceTargetUnsafe};
-use crate::types::{light::Light, pixel::Pixel, uniforms::Uniforms, view_state::ViewState};
+use crate::types::{light::Light, pixel::Pixel, renderer::Renderer, uniforms::Uniforms, view_state::ViewState};
 
 pub struct GpuRenderer<'a> {
     device: wgpu::Device,
@@ -128,8 +128,8 @@ impl GpuRenderer<'_> {
     }
 }
 
-impl GpuRenderer<'_> {
-    pub fn render(&mut self, view_state: &ViewState, light: &Light) {
+impl Renderer<'_> for GpuRenderer<'_> {
+    fn render(&mut self, view_state: &ViewState, light: &Light) {
         let frame = self
             .surface
             .get_current_texture()
@@ -150,6 +150,9 @@ impl GpuRenderer<'_> {
             c_angle_x: view_state.c_angle_x,
             c_angle_y: view_state.c_angle_y,
             c_angle_z: view_state.c_angle_z,
+            l_angle_x: view_state.l_angle_x,
+            l_angle_y: view_state.l_angle_y,
+            l_angle_z: view_state.l_angle_z,
             scale: view_state.scale,
             canvas_width: self.canvas_width,
             canvas_height: self.canvas_height,
@@ -302,11 +305,11 @@ impl GpuRenderer<'_> {
         self.depth_map_buffer = Some(projection_depth_map_buffer);
     }
 
-    pub fn load_pixels(&mut self, new_pixels: Vec<Pixel>) {
+    fn load_pixels(&mut self, new_pixels: Vec<Pixel>) {
         self.pixels.extend(new_pixels);
     }
     
-    pub fn resize(&mut self, width: u32, height: u32) {
+    fn resize(&mut self, width: u32, height: u32) {
         self.canvas_width = width as f32;
         self.canvas_height = height as f32;
         self.surface_config.width = width as u32;

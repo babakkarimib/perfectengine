@@ -16,6 +16,7 @@ pub struct EventHandler {
     r_move_backward: bool,
     r_move_left: bool,
     r_move_right: bool,
+    ctrl: bool,
 }
 
 impl EventHandler {
@@ -35,6 +36,7 @@ impl EventHandler {
             r_move_backward: false,
             r_move_left: false,
             r_move_right: false,
+            ctrl: false
         }
     }
 
@@ -58,6 +60,7 @@ impl EventHandler {
                         Keycode::Down => self.r_move_backward = pressed,
                         Keycode::Left => self.r_move_left = pressed,
                         Keycode::Right => self.r_move_right = pressed,
+                        Keycode::LCtrl => self.ctrl = pressed,
                         _ => {}
                     }
                 },
@@ -105,8 +108,13 @@ impl EventHandler {
                     if self.m_drag {
                         let dx = x - self.last_x;
                         let dy = y - self.last_y;
-                        view_state.c_angle_x = (view_state.c_angle_x - (dy as f32 * 0.01)).rem_euclid(2.0 * std::f32::consts::PI);
-                        view_state.c_angle_y = (view_state.c_angle_y - (dx as f32 * 0.01)).rem_euclid(2.0 * std::f32::consts::PI);
+                        if self.ctrl {
+                            view_state.l_angle_x = (view_state.l_angle_x - (dy as f32 * 0.01)).rem_euclid(2.0 * std::f32::consts::PI);
+                            view_state.l_angle_y = (view_state.l_angle_y - (dx as f32 * 0.01)).rem_euclid(2.0 * std::f32::consts::PI);
+                        } else {
+                            view_state.c_angle_x = (view_state.c_angle_x - (dy as f32 * 0.01)).rem_euclid(2.0 * std::f32::consts::PI);
+                            view_state.c_angle_y = (view_state.c_angle_y - (dx as f32 * 0.01)).rem_euclid(2.0 * std::f32::consts::PI);
+                        }
                         self.last_x = x;
                         self.last_y = y;
                     }
