@@ -2,7 +2,6 @@
 name = "perfectengine"
 version = "0.0.1"
 edition = "2021"
-build = "build.rs"
 
 [dependencies]
 async-std = { version = "1.13.0", features = ["attributes", "unstable"] }
@@ -10,5 +9,5 @@ bytemuck = "1.18.0"
 image = "0.25.2"
 mshio = "0.4.2"
 regex = "1.10.6"
-sdl2 = { version = "0.37.0", features = ["raw-window-handle"] }
+sdl2 = { version = "0.37.0", features = ["raw-window-handle", "bundled"] }
 wgpu = "22.1.0"

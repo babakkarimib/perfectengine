@@ -20,7 +20,7 @@ pub struct GpuRenderer<'a> {
 }
 
 impl GpuRenderer<'_> {
-    pub async fn new(window: &Window) -> GpuRenderer<'static> {
+    pub async fn new(window: &Window) -> GpuRenderer<'_> {
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
         let surface = unsafe { instance.create_surface_unsafe(SurfaceTargetUnsafe::from_window(window).unwrap()).unwrap() };
         let adapter = instance
@@ -368,7 +368,11 @@ async fn request_device(adapter: &wgpu::Adapter) -> (wgpu::Device, wgpu::Queue) 
             &wgpu::DeviceDescriptor {
                 label: None,
                 required_features: wgpu::Features::BGRA8UNORM_STORAGE,
-                required_limits: wgpu::Limits::default(),
+                required_limits: wgpu::Limits {
+                    max_texture_dimension_1d: 4096,
+                    max_texture_dimension_2d: 4096,
+                    ..wgpu::Limits::default()
+                },
                 memory_hints: wgpu::MemoryHints::Performance,
             },
             None,
