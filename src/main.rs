@@ -76,12 +76,11 @@ async fn main() {
         .unwrap()
     };
 
-    let texture_creator;
+    let canvas = window.into_canvas().present_vsync().build().unwrap();
+    let texture_creator = canvas.texture_creator();
     let mut renderer: Box<dyn Renderer<'_>> = if gpu_enabled {
-        Box::new(GpuRenderer::new(&window).await)
+        Box::new(GpuRenderer::new(canvas, &texture_creator).await)
     } else {
-        let canvas = window.into_canvas().present_vsync().build().unwrap();
-        texture_creator = canvas.texture_creator();
         Box::new(CpuRenderer::new(canvas, &texture_creator))
     };
 

@@ -1,17 +1,17 @@
 use async_std::task;
-use sdl2::video::Window;
-use wgpu::{util::DeviceExt, Buffer, SurfaceConfiguration, SurfaceTargetUnsafe};
+use sdl2::{pixels::PixelFormatEnum, render::TextureCreator, video::WindowContext};
+use wgpu::{util::DeviceExt, Buffer};
 use crate::types::{light::Light, pixel::Pixel, renderer::Renderer, uniforms::Uniforms, view_state::ViewState};
 
 pub struct GpuRenderer<'a> {
     device: wgpu::Device,
     queue: wgpu::Queue,
-    surface: wgpu::Surface<'a>,
-    surface_config: SurfaceConfiguration,
+    canvas: sdl2::render::Canvas<sdl2::video::Window>,
+    texture_creator: &'a TextureCreator<WindowContext>,
+    texture: sdl2::render::Texture<'a>,
     raytracing_compute_pipeline: wgpu::ComputePipeline,
     lighting_compute_pipeline: wgpu::ComputePipeline,
     projection_compute_pipeline: wgpu::ComputePipeline,
-    render_pipeline: wgpu::RenderPipeline,
     pixels: Vec<Pixel>,
     canvas_width: f32,
     canvas_height: f32,
@@ -20,33 +20,26 @@ pub struct GpuRenderer<'a> {
 }
 
 impl GpuRenderer<'_> {
-    pub async fn new(window: &Window) -> GpuRenderer<'_> {
+    pub async fn new<'a>(
+        canvas: sdl2::render::Canvas<sdl2::video::Window>,
+        texture_creator: &'a TextureCreator<WindowContext>,
+    ) -> GpuRenderer<'a> {
+        let (canvas_width, canvas_height) = canvas.output_size().unwrap();
+        let texture = texture_creator
+            .create_texture_streaming(PixelFormatEnum::RGBA8888, canvas_width, canvas_height)
+            .unwrap();
+
         let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
-        let surface = unsafe { instance.create_surface_unsafe(SurfaceTargetUnsafe::from_window(window).unwrap()).unwrap() };
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
                 power_preference: wgpu::PowerPreference::HighPerformance,
-                compatible_surface: Some(&surface),
-                force_fallback_adapter: false,
+                ..wgpu::RequestAdapterOptions::default()
             })
             .await
             .unwrap();
 
         let (device, queue) = request_device(&adapter).await;
         let batch_size = device.limits().max_compute_workgroups_per_dimension as usize;
-
-        let (canvas_width, canvas_height) = window.drawable_size();
-        let surface_config = SurfaceConfiguration {
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::STORAGE_BINDING | wgpu::TextureUsages::TEXTURE_BINDING,
-            format: wgpu::TextureFormat::Bgra8Unorm,
-            width: canvas_width,
-            height: canvas_height,
-            present_mode: wgpu::PresentMode::FifoRelaxed,
-            desired_maximum_frame_latency: 3,
-            alpha_mode: wgpu::CompositeAlphaMode::Opaque,
-            view_formats: vec![],
-        };
-        surface.configure(&device, &surface_config);
 
         let shader_module = create_shader_module("Raytracing Compute Shader", &device, include_str!("raytracing_shader.wgsl"));
         let raytracing_compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
@@ -78,47 +71,15 @@ impl GpuRenderer<'_> {
             cache: None,
         });
 
-        let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            label: Some("Render Pipeline Layout"),
-            bind_group_layouts: &[],
-            push_constant_ranges: &[],
-        });
-
-        let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("Render Pipeline"),
-            layout: Some(&render_pipeline_layout),
-            vertex: wgpu::VertexState {
-                compilation_options: wgpu::PipelineCompilationOptions::default(),
-                module: &shader_module,
-                entry_point: "vs_main",
-                buffers: &[],
-            },
-            fragment: Some(wgpu::FragmentState {
-                module: &shader_module,
-                entry_point: "fs_main",
-                targets: &[Some(wgpu::ColorTargetState {
-                    format: surface_config.format,
-                    blend: Some(wgpu::BlendState::REPLACE),
-                    write_mask: wgpu::ColorWrites::ALL,
-                })],
-                compilation_options: wgpu::PipelineCompilationOptions::default(),
-            }),
-            primitive: wgpu::PrimitiveState::default(),
-            depth_stencil: None,
-            multisample: wgpu::MultisampleState::default(),
-            multiview: None,
-            cache: None,
-        });
-
         GpuRenderer {
             device,
             queue,
-            surface,
-            surface_config,
+            canvas,
+            texture_creator,
+            texture,
             raytracing_compute_pipeline,
             lighting_compute_pipeline,
             projection_compute_pipeline,
-            render_pipeline,
             pixels: Vec::new(),
             canvas_width: canvas_width as f32,
             canvas_height: canvas_height as f32,
@@ -130,17 +91,13 @@ impl GpuRenderer<'_> {
 
 impl Renderer<'_> for GpuRenderer<'_> {
     fn render(&mut self, view_state: &ViewState, light: &Light) {
-        let frame = self
-            .surface
-            .get_current_texture()
-            .expect("Failed to acquire next swap chain texture");
-        let view = frame.texture.create_view(&wgpu::TextureViewDescriptor::default());
-
         let buffer_size = (self.canvas_width * self.canvas_height) as usize;
         let raytracing_depth_buffer = create_depth_buffer(&self.device, buffer_size);
         let raytracing_depth_map_buffer = create_depth_map_buffer(&self.device, buffer_size);
         let projection_depth_buffer = create_depth_buffer(&self.device, buffer_size);
         let projection_depth_map_buffer = create_depth_map_buffer(&self.device, buffer_size);
+        let img_buffer = create_image_buffer(&self.device, buffer_size);
+        let staging_buffer = create_staging_buffer(&self.device, buffer_size);
         let lock_buffer = create_lock_buffer(&self.device, buffer_size);
 
         let uniforms = Uniforms {
@@ -210,7 +167,6 @@ impl Renderer<'_> for GpuRenderer<'_> {
             }
 
             self.queue.submit(Some(encoder.finish()));
-
         }
 
         for batch_index in 0..num_batches {
@@ -253,7 +209,7 @@ impl Renderer<'_> for GpuRenderer<'_> {
                 entries: &[
                     wgpu::BindGroupEntry { binding: 0, resource: uniform_buffer.as_entire_binding(), },
                     wgpu::BindGroupEntry { binding: 1, resource: pixel_buffer.as_entire_binding(), },
-                    wgpu::BindGroupEntry { binding: 2, resource: wgpu::BindingResource::TextureView(&view), },
+                    wgpu::BindGroupEntry { binding: 2, resource: img_buffer.as_entire_binding(), },
                     wgpu::BindGroupEntry { binding: 3, resource: projection_depth_buffer.as_entire_binding(), },
                     wgpu::BindGroupEntry { binding: 4, resource: projection_depth_map_buffer.as_entire_binding(), },
                     wgpu::BindGroupEntry { binding: 5, resource: lock_buffer.as_entire_binding(), },
@@ -274,35 +230,37 @@ impl Renderer<'_> for GpuRenderer<'_> {
             self.queue.submit(Some(encoder.finish()));
         }
 
+        self.depth_map_buffer = Some(projection_depth_map_buffer);
+
         let mut encoder = self.device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("Render Encoder"),
+            label: Some("Image Encoder"),
         });
 
-        {
-            let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                label: Some("Render Pass"),
-                timestamp_writes: None,
-                occlusion_query_set: None,
-                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                    view: &view,
-                    resolve_target: None,
-                    ops: wgpu::Operations {
-                        load: wgpu::LoadOp::Load,
-                        store: wgpu::StoreOp::Store,
-                    },
-                })],
-                depth_stencil_attachment: None,
-            });
-
-            render_pass.set_pipeline(&self.render_pipeline);
-            render_pass.draw(0..0, 0..1);
-        }
-
+        encoder.copy_buffer_to_buffer(&img_buffer, 0, &staging_buffer, 0, buffer_size as u64 * 4);
         self.queue.submit(Some(encoder.finish()));
-        frame.present();
-        
-        task::block_on(async { self.device.poll(wgpu::Maintain::Wait) });
-        self.depth_map_buffer = Some(projection_depth_map_buffer);
+
+        let buffer_slice = staging_buffer.slice(..);
+        let (sender, receiver) = flume::bounded(1);
+        buffer_slice.map_async(wgpu::MapMode::Read, move |v| sender.send(v).unwrap());
+        self.device.poll(wgpu::Maintain::wait()).panic_on_timeout();
+        let pixel_data= task::block_on(async { 
+            if let Ok(Ok(())) = receiver.recv_async().await {
+                let data = buffer_slice.get_mapped_range();
+                let pixel_data: Vec<u8> = bytemuck::cast_slice(&data).to_vec();
+
+                drop(data);
+                staging_buffer.unmap();
+
+                pixel_data
+            } else {
+                panic!("failed to run compute on gpu!")
+            }
+        });
+
+        self.texture.update(None, &pixel_data, self.canvas_width as usize * 4).unwrap();
+        self.canvas.clear();
+        self.canvas.copy(&self.texture, None, None).unwrap();
+        self.canvas.present();
     }
 
     fn load_pixels(&mut self, new_pixels: Vec<Pixel>) {
@@ -312,9 +270,9 @@ impl Renderer<'_> for GpuRenderer<'_> {
     fn resize(&mut self, width: u32, height: u32) {
         self.canvas_width = width as f32;
         self.canvas_height = height as f32;
-        self.surface_config.width = width as u32;
-        self.surface_config.height = height as u32;
-        self.surface.configure(&self.device, &self.surface_config);
+        self.texture = self.texture_creator
+        .create_texture_streaming(PixelFormatEnum::RGBA8888, width, height)
+        .unwrap();
     }
 }
 
@@ -346,9 +304,27 @@ fn create_depth_buffer(device: &wgpu::Device, size: usize) -> wgpu::Buffer {
 
 fn create_depth_map_buffer(device: &wgpu::Device, size: usize) -> wgpu::Buffer {
     device.create_buffer(&wgpu::BufferDescriptor {
-        label: Some("Depth Check Buffer"),
+        label: Some("Depth Map Buffer"),
         size: (std::mem::size_of::<u32>() * size) as u64,
         usage: wgpu::BufferUsages::STORAGE,
+        mapped_at_creation: false,
+    })
+}
+
+fn create_image_buffer(device: &wgpu::Device, size: usize) -> wgpu::Buffer {
+    device.create_buffer(&wgpu::BufferDescriptor {
+        label: Some("Image Buffer"),
+        size: (std::mem::size_of::<u32>() * size) as u64,
+        usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_SRC,
+        mapped_at_creation: false,
+    })
+}
+
+fn create_staging_buffer(device: &wgpu::Device, size: usize) -> wgpu::Buffer {
+    device.create_buffer(&wgpu::BufferDescriptor {
+        label: Some("Image Buffer"),
+        size: (std::mem::size_of::<u32>() * size) as u64,
+        usage: wgpu::BufferUsages::MAP_READ | wgpu::BufferUsages::COPY_DST,
         mapped_at_creation: false,
     })
 }
@@ -367,7 +343,7 @@ async fn request_device(adapter: &wgpu::Adapter) -> (wgpu::Device, wgpu::Queue) 
         .request_device(
             &wgpu::DeviceDescriptor {
                 label: None,
-                required_features: wgpu::Features::BGRA8UNORM_STORAGE,
+                required_features: wgpu::Features::default(),
                 required_limits: wgpu::Limits {
                     max_texture_dimension_1d: 4096,
                     max_texture_dimension_2d: 4096,

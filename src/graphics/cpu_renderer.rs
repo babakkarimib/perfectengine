@@ -98,7 +98,7 @@ impl Renderer<'_> for CpuRenderer<'_> {
             ]
         }).collect();        
         
-        self.texture.update(None, &pixel_data, (self.canvas_width * 4) as usize).unwrap();
+        self.texture.update(None, &pixel_data, self.canvas_width as usize * 4).unwrap();
         self.canvas.clear();
         self.canvas.copy(&self.texture, None, None).unwrap();
         self.canvas.present();
