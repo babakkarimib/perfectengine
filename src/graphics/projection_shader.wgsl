@@ -132,11 +132,10 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
                         depth_buffer[depth_index] = positioned_pixel.z;
                         depth_map_buffer[depth_index] = pixel.id;
                         
-                        let rgba: vec4<u32> = vec4<u32>(color * 255.0);
-                        img[depth_index] = (rgba[0] << 24) |
-                                        (rgba[1] << 16) |
-                                        (rgba[2] << 8)  |
-                                        rgba[3];
+                        img[depth_index] = u32(color[0] * 255.0) << 24 |
+                                           u32(color[1] * 255.0) << 16 |
+                                           u32(color[2] * 255.0) << 8  |
+                                           u32(color[3] * 255.0);
                     }
                     atomicStore(&lock[depth_index], 0u);
                     break;

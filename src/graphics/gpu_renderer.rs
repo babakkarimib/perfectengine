@@ -236,7 +236,7 @@ impl Renderer<'_> for GpuRenderer<'_> {
             label: Some("Image Encoder"),
         });
 
-        encoder.copy_buffer_to_buffer(&img_buffer, 0, &staging_buffer, 0, buffer_size as u64 * 4);
+        encoder.copy_buffer_to_buffer(&img_buffer, 0, &staging_buffer, 0, (std::mem::size_of::<u32>() * buffer_size) as u64);
         self.queue.submit(Some(encoder.finish()));
 
         let buffer_slice = staging_buffer.slice(..);
