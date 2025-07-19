@@ -33,6 +33,7 @@ impl GpuRenderer<'_> {
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
                 power_preference: wgpu::PowerPreference::HighPerformance,
+                compatible_surface: None,
                 ..wgpu::RequestAdapterOptions::default()
             })
             .await
