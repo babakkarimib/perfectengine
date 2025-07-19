@@ -29,7 +29,7 @@ impl GpuRenderer<'_> {
             .create_texture_streaming(PixelFormatEnum::RGBA8888, canvas_width, canvas_height)
             .unwrap();
 
-        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor::default());
+        let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor::default());
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
                 power_preference: wgpu::PowerPreference::HighPerformance,
@@ -46,7 +46,7 @@ impl GpuRenderer<'_> {
             label: Some("Raytracing Compute Pipeline"),
             layout: None,
             module: &shader_module,
-            entry_point: "main",
+            entry_point: Some("main"),
             compilation_options: Default::default(),
             cache: None,
         });
@@ -56,7 +56,7 @@ impl GpuRenderer<'_> {
             label: Some("Lighting Compute Pipeline"),
             layout: None,
             module: &shader_module,
-            entry_point: "main",
+            entry_point: Some("main"),
             compilation_options: Default::default(),
             cache: None,
         });
@@ -66,7 +66,7 @@ impl GpuRenderer<'_> {
             label: Some("Projection Compute Pipeline"),
             layout: None,
             module: &shader_module,
-            entry_point: "main",
+            entry_point: Some("main"),
             compilation_options: Default::default(),
             cache: None,
         });
@@ -242,7 +242,7 @@ impl Renderer<'_> for GpuRenderer<'_> {
         let buffer_slice = staging_buffer.slice(..);
         let (sender, receiver) = flume::bounded(1);
         buffer_slice.map_async(wgpu::MapMode::Read, move |v| sender.send(v).unwrap());
-        self.device.poll(wgpu::Maintain::wait()).panic_on_timeout();
+        let _ = self.device.poll(wgpu::PollType::wait());
         let pixel_data= task::block_on(async { 
             if let Ok(Ok(())) = receiver.recv_async().await {
                 let data = buffer_slice.get_mapped_range();
@@ -350,8 +350,8 @@ async fn request_device(adapter: &wgpu::Adapter) -> (wgpu::Device, wgpu::Queue) 
                     ..wgpu::Limits::default()
                 },
                 memory_hints: wgpu::MemoryHints::Performance,
+                trace: wgpu::Trace::Off,
             },
-            None,
         )
         .await
         .unwrap()

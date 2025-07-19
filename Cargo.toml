@@ -4,11 +4,11 @@ version = "0.0.1"
 edition = "2021"
 
 [dependencies]
-async-std = { version = "1.13.0", features = ["attributes", "unstable"] }
+async-std = { version = "1.13.1", features = ["attributes", "unstable"] }
 bytemuck = "1.18.0"
 flume = "0.11.1"
 image = "0.25.2"
 mshio = "0.4.2"
 regex = "1.10.6"
-sdl2 = { version = "0.37.0", features = ["bundled"] }
-wgpu = "22.1.0"
+sdl2 = { version = "0.38.0", features = ["bundled"] }
+wgpu = "26.0.1"

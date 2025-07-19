@@ -107,7 +107,7 @@ fn main(@builtin(global_invocation_id) id: vec3<u32>) {
             in_bounds = true;
 
             let depth_index = py_offset * canvas_width + px_offset;
-            if (distance(depth_buffer[depth_index], positioned_pixel.z) < 4.0) {
+            if (abs(depth_buffer[depth_index] - positioned_pixel.z) < 4.0) {
                 return;
             }
         }
