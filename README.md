@@ -1,4 +1,4 @@
-A non‑polygon‑based graphics engine written in Rust using SDL2.
+A non‑polygon‑based graphics engine written in Rust using SDL2 and WGPU.
 
 <img src="./frame-6.png" alt="Screenshot">
 
