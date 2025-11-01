@@ -1,5 +1,8 @@
 A non‑polygon‑based graphics engine written in Rust using SDL2 and WGPU.
 
+Just pull the code and run with: <br>
+`cargo run --release`
+
 <img src="./frame-6.png" alt="Screenshot">
 
 <h3>Sponsorship</h3>
