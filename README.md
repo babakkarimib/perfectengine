@@ -19,6 +19,10 @@ Demo: https://drive.google.com/file/d/12gd-R1CQ-atdvcHmsXghGv22BQgWU_ba/view?usp
 
 <br>
 <br>
+The documentations are not ready yet but the code base is pretty much short and self-documented. So I hope you enjoy the code.
+
+<br>
+<br>
 <h3>Sponsorship</h3>
 
 Ethereum: `0x53A6F9c6a717d5012629564c864f07330909bBA8`
