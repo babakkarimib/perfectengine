@@ -12,4 +12,4 @@ Demo: https://drive.google.com/file/d/12gd-R1CQ-atdvcHmsXghGv22BQgWU_ba/view?usp
 <br>
 <h3>Sponsorship</h3>
 
-Ethereum: `0x4Ea4bBEaf8425F21388471205F9E47dAA8023B0F`
+Ethereum: `0x53A6F9c6a717d5012629564c864f07330909bBA8`
