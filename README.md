@@ -1,6 +1,7 @@
 A non‑polygon‑based graphics engine written in Rust using SDL2 and WGPU.
 
-Just pull the code and run with: <br>
+After <a href="https://rust-lang.org/tools/install/">setting up your rust environment</a>
+, just pull the code and run with: <br>
 `cargo run --release`
 
 <br>
@@ -13,6 +14,15 @@ The next step will be to detect the surface angel based on the 3D position of th
 <br>
 
 <img src="./frame-6.png" alt="Screenshot">
+
+Note: On any platform if you just run the code you get the realtime demo. Here are the controls that are used in the realtime demo video:
+
+<ul>
+  <li>Mouse left drag: object rotation</li>
+  <li>Mouse right drag: moves light</li>
+  <li>Mouse wheel: light intensity</li>
+  <li>Mouse middle + Left Ctrl drag: light rotation</li>
+</ul>
 
 <br>
 Realtime Demo: https://drive.google.com/file/d/12gd-R1CQ-atdvcHmsXghGv22BQgWU_ba/view?usp=drivesdk
