@@ -15,7 +15,7 @@ The next step will be to detect the surface angel based on the 3D position of th
 <img src="./frame-6.png" alt="Screenshot">
 
 <br>
-Demo: https://drive.google.com/file/d/12gd-R1CQ-atdvcHmsXghGv22BQgWU_ba/view?usp=drivesdk
+Realtime Demo: https://drive.google.com/file/d/12gd-R1CQ-atdvcHmsXghGv22BQgWU_ba/view?usp=drivesdk
 
 <br>
 <br>
