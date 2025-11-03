@@ -31,10 +31,10 @@ The next step will be to detect the surface angel based on the 3D position of th
 Note: On any platform if you just run the code you get the realtime demo. Here are the controls that are used in the realtime demo video:
 
 <ul>
-  <li>Mouse left drag: object rotation</li>
-  <li>Mouse right drag: moves light</li>
-  <li>Mouse wheel: light intensity</li>
-  <li>Mouse middle + Left Ctrl drag: light rotation</li>
+  <li><b>Mouse left drag</b>: object rotation</li>
+  <li><b>Mouse right drag</b>: moves light</li>
+  <li><b>Mouse wheel</b>: light intensity</li>
+  <li><b>Mouse middle + Left Ctrl drag</b>: light rotation</li>
 </ul>
 
 <br>
