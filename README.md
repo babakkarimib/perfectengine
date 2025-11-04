@@ -28,7 +28,7 @@ The next step will be to detect the surface angel based on the 3D position of th
 
 <img src="./frame-6.png" alt="Screenshot">
 
-Note: On any platform if you just run the code you get the realtime demo. Here are the controls that are used in the realtime demo video:
+<b>Note</b>: On any platform if you just run the code you get the realtime demo. Here are the controls that are used in the realtime demo video:
 
 <ul>
   <li><b>Mouse left drag</b>: object rotation</li>
@@ -38,7 +38,7 @@ Note: On any platform if you just run the code you get the realtime demo. Here a
 </ul>
 
 <br>
-Realtime Demo: https://drive.google.com/file/d/12gd-R1CQ-atdvcHmsXghGv22BQgWU_ba/view?usp=drivesdk
+<b>Realtime Demo</b>: https://drive.google.com/file/d/12gd-R1CQ-atdvcHmsXghGv22BQgWU_ba/view?usp=drivesdk
 
 <br>
 <br>
