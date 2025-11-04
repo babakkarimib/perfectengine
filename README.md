@@ -48,4 +48,8 @@ The documentations are not ready yet but the code base is pretty much short and 
 <br>
 <h3>Sponsorship</h3>
 
-Ethereum: `0x53A6F9c6a717d5012629564c864f07330909bBA8`
+If you're interested in supporting this project this is how you can help.
+<br>
+<br>
+<i>Ethereum</i>:
+`0x53A6F9c6a717d5012629564c864f07330909bBA8`
