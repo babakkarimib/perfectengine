@@ -46,6 +46,11 @@ The documentations are not ready yet but the code base is pretty much short and 
 
 <br>
 <br>
+<b>For better communication</b>, here's the invite link to perfectengine's Discord server. I'm available for questions and discussions there.
+https://discord.gg/fuWVf3Bdmc
+
+<br>
+<br>
 <h3>Sponsorship</h3>
 
 If you're interested in supporting this project this is how you can help.
