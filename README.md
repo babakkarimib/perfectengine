@@ -53,7 +53,7 @@ https://discord.gg/fuWVf3Bdmc
 <br>
 <h3>Sponsorship</h3>
 
-If you're interested in supporting this project this is how you can help.
+If you're interested in supporting this project, this is how you can help.
 <br>
 <br>
 <i>Ethereum</i>:
