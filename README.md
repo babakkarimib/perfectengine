@@ -51,7 +51,7 @@ https://discord.gg/fuWVf3Bdmc
 
 <br>
 <br>
-I'm looking forward to see and share your demos, as well as having your contributions in this project. Many thanks.
+I'm looking forward to seeing and sharing your demos, as well as having your contributions in this project. Many thanks.
 
 <br>
 <br>
