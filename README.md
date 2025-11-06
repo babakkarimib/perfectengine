@@ -51,6 +51,10 @@ https://discord.gg/fuWVf3Bdmc
 
 <br>
 <br>
+I'm looking forward to see and share your demos, as well as having your contribution in this project. Many thanks.
+
+<br>
+<br>
 <h3>Sponsorship</h3>
 
 If you're interested in supporting this project, this is how you can help.
