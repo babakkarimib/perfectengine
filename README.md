@@ -22,7 +22,7 @@ The main feature is that this engine does not render based on polygon calculatio
 <br>
 
 <br>
-The next step will be to detect the surface angel based on the 3D position of the pixels around a pixel and then use it to detect and then use the reflection factor based on the angel of the camera and the light source to the surface.
+The next step will be to detect the surface angle based on the 3D position of the pixels around a pixel and then use it to detect and then use the reflection factor based on the angle of the camera and the light source to the surface.
 <br>
 <br>
 
@@ -38,11 +38,11 @@ The next step will be to detect the surface angel based on the 3D position of th
 </ul>
 
 <br>
-<b>Realtime Demo</b>: https://drive.google.com/file/d/12gd-R1CQ-atdvcHmsXghGv22BQgWU_ba/view?usp=drivesdk
+<b>Realtime Demo</b>: https://youtu.be/VMSdGRFzYos?si=qGbDUhvOCmdBPphA
 
 <br>
 <br>
-The documentations are not ready yet but the code base is pretty much short and self-documented. So I hope you enjoy the code.
+The documentations is not ready yet but the code base is pretty much short and self-documented. So I hope you enjoy the code.
 
 <br>
 <br>
