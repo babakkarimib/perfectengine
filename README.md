@@ -41,6 +41,13 @@ The next step will be to detect the surface angle based on the 3D position of th
 <b>Realtime Demo</b>: https://youtu.be/VMSdGRFzYos?si=qGbDUhvOCmdBPphA
 
 <br>
+Also check out this isometric showcase: https://youtu.be/MyKXAUFCHoA?si=vPBwPF8KVLOi6twR
+
+<br>
+Also with fake reflections: https://youtu.be/VMSdGRFzYos?si=jsUWTZPnysYkRlTs
+
+
+<br>
 <br>
 The documentations is not ready yet but the code base is pretty much short and self-documented. So I hope you enjoy the code.
 
