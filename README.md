@@ -59,13 +59,3 @@ https://discord.gg/fuWVf3Bdmc
 <br>
 <br>
 I'm looking forward to seeing and sharing your demos, as well as having your contributions in this project. Many thanks.
-
-<br>
-<br>
-<h3>Sponsorship</h3>
-
-If you're interested in supporting this project, this is how you can help.
-<br>
-<br>
-<i>Ethereum</i>:
-`0x53A6F9c6a717d5012629564c864f07330909bBA8`
