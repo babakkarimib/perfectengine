@@ -18,7 +18,7 @@ You can use any or a combination of these arguments with space between them like
 `cargo run --release -- [argument1] [argument2]`
 
 <br>
-The main feature is that this engine does not render based on polygon calculations, but rather it uses a 2D pixel concept that has 3D properties. No rasterization is done, pixels just overlap. Also ray tracing is added as a layer on top. This project is built using the Rust language, WGPU library and SDL2. All GPU calculations are done in shaders.
+The main feature is that this engine does not render based on polygon calculations, but rather it uses a 2D pixel concept that has 3D properties. It's like using "2D voxels" but more akin with splatting. No rasterization is done, pixels just overlap. Also ray tracing is added as a layer on top. This project is built using the Rust language, WGPU library and SDL2. All GPU calculations are done in shaders.
 <br>
 
 <br>
