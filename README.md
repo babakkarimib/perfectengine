@@ -25,6 +25,9 @@ The main feature is that this engine does not render based on polygon calculatio
 The next step will be to detect the surface angle based on the 3D position of the pixels around a pixel and then use it to detect and then use the reflection factor based on the angle of the camera and the light source to the surface.
 <br>
 <br>
+Another next step will be implementing dynamic level of details by not rendering the pixels that are fully overlaped given depth and angle.
+<br>
+<br>
 
 <img src="./frame-6.png" alt="Screenshot">
 
