@@ -9,11 +9,11 @@ pub async fn load_msh_file_with_texture(id: u32) -> (Vec<Pixel>, usize) {
     let mut pixels: Vec<Pixel> = vec![];
     let current_dir = env::current_dir().expect("Failed to get current directory");
     
-    let mesh_file_path = current_dir.join("src").join("helpers").join("model_helper").join("mesh_output.msh");
+    let mesh_file_path = current_dir.join("mesh_output.msh");
     let msh_bytes = fs::read(mesh_file_path).await.unwrap();
     let parser_result = mshio::parse_msh_bytes(msh_bytes.as_slice());
 
-    let texture_file_path = current_dir.join("src").join("helpers").join("model_helper").join("texture.png");
+    let texture_file_path = current_dir.join("texture.png");
     let img = fs::read(texture_file_path).await.expect("Failed to read image");
     let img = image::load_from_memory(&img).expect("Failed to decode image").to_rgba8();
 
@@ -109,7 +109,7 @@ pub async fn load_msh_file_with_texture(id: u32) -> (Vec<Pixel>, usize) {
 
 async fn load_texture(pixels: &mut Vec<Pixel>, count: usize, view_state: ViewState, width: f32, height: f32, path: &str, wd: u32, hd: u32) {
     let current_dir = env::current_dir().expect("Failed to get current directory");
-    let texture_file_path = current_dir.join("src").join("helpers").join("model_helper").join(path);
+    let texture_file_path = current_dir.join(path);
     let img = fs::read(texture_file_path).await.expect("Failed to read image");
     let img = image::load_from_memory(&img).expect("Failed to decode image").to_rgba8();
     
