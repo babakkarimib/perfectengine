@@ -1,7 +1,7 @@
 [package]
 name = "perfectengine"
 version = "0.0.1"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 async-std = { version = "1.13.1", features = ["attributes", "unstable"] }
@@ -10,5 +10,8 @@ flume = "0.11.1"
 image = "0.25.6"
 mshio = "0.4.2"
 regex = "1.11.1"
+wgpu = { version = "26.0.1", default-features = false, features = ["vulkan", "wgsl"] }
+[target.'cfg(target_os = "android")'.dependencies]
+sdl2 = "0.38.0"
+[target.'cfg(not(target_os = "android"))'.dependencies]
 sdl2 = { version = "0.38.0", features = ["bundled"] }
-wgpu = "26.0.1"
