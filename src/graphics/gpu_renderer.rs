@@ -29,12 +29,15 @@ impl GpuRenderer<'_> {
             .create_texture_streaming(PixelFormatEnum::RGBA8888, canvas_width, canvas_height)
             .unwrap();
 
-        let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor::default());
+        let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
+            backends: wgpu::Backends::VULKAN,
+            ..Default::default()
+        });
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
                 power_preference: wgpu::PowerPreference::HighPerformance,
                 compatible_surface: None,
-                ..wgpu::RequestAdapterOptions::default()
+                ..Default::default()
             })
             .await
             .unwrap();

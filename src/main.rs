@@ -65,11 +65,13 @@ async fn main() {
 
     let window = if fullscreen {
         video_subsystem.window("Perfect Engine", width, height)
+        .vulkan()
         .fullscreen()
         .build()
         .unwrap()
     } else {
         video_subsystem.window("Perfect Engine", width, height)
+        .vulkan()
         .position_centered()
         .resizable()
         .build()
